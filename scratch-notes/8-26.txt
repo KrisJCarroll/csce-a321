@@ -1,0 +1,19 @@
+FIFO queue with queue in and queue out functions.
+Asks user how many elements they want to queue in.
+Asks user to enter the elements (integers for example)
+Asks user how many elements they want to queue out (if there are that many elements) otherwise queues out all elements
+Data structure should grow as queue in and stop when there's nothing.
+No losing or leaking memory.
+Dynamically allocate and free memory.
+
+typedef for data structure (FIFO) 
+    fifo_t // _t = type good form
+void fifo_queue_in(fifo_t *fifo, int in[], int n)
+
+int fifo_queue_out(fifo_t *fifo, int out[], int n) // never writes more than n elements, returns the number of elements written
+
+void fifo_init(fifo_t *fifo)
+
+void fifo_clear(fifo_t *fifo)
+
+Can use any data structure you wish (linked list or dynamically sized array)
