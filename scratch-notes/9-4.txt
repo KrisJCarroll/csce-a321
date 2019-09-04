@@ -1,0 +1,69 @@
+printf - where does it come from? NOT <stdio.h>
+
+int printf(const char *, ...);
+
+int main(int argc, char **argv) {
+    printf("Hello world\n");
+
+    return 0;
+}
+
+^^^^^ this still prints Hello world even without #include <stdio.h> 
+    - thus, printf must exist in the C library
+
+Following through the debugger into the C library files, you can see the implementation of
+standard C library functions.
+
+Buffer comes up during IO operations
+    - in order to optimize output operations, a buffer is used to store chunks of data to be displayed before
+      attempting a system call to actually display it
+    - newlines will cause the buffer to get flushed and make the system call to display to the screen
+    - eventually we get to the system call 'write'
+
+Write is not a function - it is not defined within the C library, when following it - you end at the code for the SYSCALL
+which is just a featureless stub in assembly language found in a .S file
+
+You can find information on system calls in the man pages (may have to increase man number such as man 2 write instead of man write)
+Everything is treated as a file - the screen is a file you can write to, the keyboard is a file you can read from, etc.
+Standard input (keyboard) - file number 0
+Standard output (screen) - file number 1
+Standard error - file number 2
+
+
+#include <unistd.h>
+
+int main(int argc, char **argv) {
+    char msg[] = "Hello world\n";
+
+    write(1, msg, (sizeof(msg) / sizeof(msg[0])) - 1); // fd = file designator (1 is standard output)
+
+    return 0;
+}
+
+compile with gcc -S flag to produce assembly language file
+
+eventually we get down to assembly that calls 'syscall' - syscall converts the CPU from user mode to kernel mode
+kernel mode allows all access to every resource available to the CPU - can we get our Hello world program to just a syscall with 
+nothing else?
+
+Yes - need to do it in assembly.
+
+        .text
+        .globl main
+        .type main, @function
+
+main:
+        movl    $1, %eax        # syscall 1 = write
+        movl    $1, %edi        # stdout
+        movl    $12, %edx       # 12 bytes in Hello world\n
+        leaq    msg(%rip), %rsi # load effective address as quadword of msg()
+        syscall
+        movl    $0, %eax
+        ret
+
+msg:
+        .ascii "Hello world\n"
+
+syscall stops execution, changes to kernel mode, and then executes at a fixed address
+
+Read the textbook until he gets to talking about system calls (Chapter 1 & 2)
