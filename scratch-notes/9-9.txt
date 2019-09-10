@@ -1,0 +1,9 @@
+Operating system exists in kernel mode, not user mode
+
+Serves as a resource manager and coordinator of processes.
+    allows sharing of resources in time and space
+    manage and protect memory, i/o, other resources
+
+CPUs have caches due to their high operating speeds, allowing for overcoming the speed of light
+    relevant to longer distance transmission of signals
+
