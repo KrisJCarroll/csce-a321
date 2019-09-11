@@ -1,0 +1,96 @@
+Notes on Assignment 2
+
+    Implementing basic function library used in Linux ourselves.
+    Tail and Head - functionality should match the Linux commands 
+        head with no arguments should repeat each line from input for n total lines (default 10)
+            otherwise get n lines from file
+            no need for dynamic memory allocation
+        tail should wait until file end (Ctrl+D) and report last n total lines (default 10)
+            needs a buffer that holds the last n lines
+            adjusts this buffer as more lines are gathered
+            look for new line characters to control the buffer
+            malloc, calloc, realloc until we reach n lines, then start controlling what stays in buffer
+            no memory leaking - make sure to free memory that has been allocated
+        careful of array accessing - make sure in bounds
+        be sure to cover every error case for all cases of input
+            display error messages on stderror and not stdout
+            look at example uses in assignment description
+        make sure to implement functions to reduce repetitive code
+    
+    File searching - implement our own but O(logn) with binary search
+        Find the end of the file using system call on a file that is seekable
+            allows you to jump directly to the end
+            lseek - will also tell you how long the file is, giving the end index
+                if this is done on a file that's being written, a hole in the file is created and linux remembers this through magic
+                and processes it when someone attempts to read it
+            stat - system call that will give you the filesize, is not the amount of bytes readable but the amount of bytes that 
+                the file takes up on the disk
+        should open the file, jump to the end, jump to the middle and start binary search until it finds the correct prefix
+        fail gracefully, including when something is not seekable (such as from stdinput or a socket)
+            fail when lseek fails (non-seekable file) - or you could perform linear search at this juncture
+                produce this error on purpose so you can see the error message/function performed
+        
+    Mapping memory - findlocationfast but with memory
+        everything is a file but every file can be considered memory
+        mmap system call takes a file and makes it appear in memory and returns a pointer to the beginning of the file in memory
+            read the man pages thoroughly
+            everything that gets mapped must be unmapped
+            no using strlen, strcmp, memset, memcpy or memmove - implement your own
+            must have O(log n) time complexity
+
+        fail gracefully on files that are non-regular or non-seekable
+            once it's gone from memory it's gone, can't go back
+            mmap only works on regular, seekable files
+        
+    Pipe observer - performs the tee function
+        takes in several arguments ./pipeobserver allfiles [ ls ] [ wc ]
+            filename allfiles
+            opening bracket [
+            executable (ls)
+            closing bracket ]
+            opening bracket [ 
+            
+            closing bracket ]
+
+        creates a pipe to children, creates the children
+            continues down to successive children
+            once the children start expiring, returns back
+        
+        only implement it after it has been diagrammed out well
+            check at each step to ensure the right number of processes (children) are running
+            use ps tree to show the tree of the processes
+        
+        possible to do this with no malloc calls and recommended to try this approach
+            pointers from arguments are still valid for children and grandchildren
+        
+        try to close the ends of the pipes you don't need anymore
+            will be lightly checked - don't need to worry too much but try to do our best
+
+man 2 open
+    creates it if it doesn't exist if you give it the correct file, returns integer for file descriptor
+    always positive or 0
+
+man 2 close
+    closes a file descriptor, may fail if you can't close
+
+man 2 read
+    takes int file descriptor, give it a buffer and the size of the buffer
+    reads up to size of buffer worth of bytes and returns what it could read
+    may return -1 bytes read which failed completely
+
+man 2 write
+    takes file descriptor, buffer, number of bytes to be written
+    returns how many bytes it writes
+        - writes at least 1 byte if file descriptor is writable
+        - then writes however many bytes it specifies before stopping
+        - may write for a writable but then file size fails and returns -1 and dies
+    need to shift buffer after writing to continue writing the remaining bytes
+
+man 2 lseek
+    takes file descriptor, offset to jump to, whence (flag to indicate whether or not to jump to offset)
+    returns -1 if it fails
+    otherwise returns the position it jumped to
+        
+
+    
+
