@@ -1,0 +1,31 @@
+#!/bin/bash
+# Script allows user to search nanpa for North American phone prefixes and tells them the location if found
+
+prefix=$1 # store the first command line argument as the prefix to be searched
+
+# Check for correct format - all digits
+if ! [[ $prefix =~ ^[0-9]+$ ]]
+	then
+		echo "ERROR: Prefixes should be integers only.";
+		exit 1
+fi
+
+# Check for correct format - 6 digits
+if ! [[ ${#prefix} =~ 6 ]]
+	then
+		echo "ERROR: Prefix should be 6 digits long.";
+		exit 1
+fi
+
+# Search for prefix
+result=$(less nanpa | grep -m 1 $prefix)
+
+# Check to see if prefix was found
+if [[ ${#result} == 0 ]] # not found
+	then
+		echo "ERROR: There was no location found for that prefix.";
+		exit 1
+fi
+location=${result:6} # strip off prefix
+location=$(echo -e "$location" | xargs ) # remove excess whitespaces
+echo -e "$location" # output location found
