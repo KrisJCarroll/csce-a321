@@ -1,0 +1,114 @@
+Notes on assignment 2
+    read from standard input with read()
+    write to standard output with write()
+
+System calls cont.
+    read() does the following
+        push nbytes, 
+        push &buffer, 
+        push fd,
+        call read,
+        put code for read in register,
+        trap to the kernel,
+        copies user mode program register,
+        does some weird shit in kernel mode,
+        goes back to user space
+        returns to caller, 
+        increments stack pointer
+
+        basically the kernel side prepares the hardware to actually handle the read, then tells the user side
+        when it is ready to be run and can actually obtain values
+
+    pid = fork()
+        creates a process that duplicates the calling process
+        it returns twice
+            once in the parent process and once in the child process
+            after the child process returns, it's a perfect copy of the parent
+                INCLUDING program counter and address in memory
+        never call fork() repeatedly without protection
+            if ((pid_child = fork()) == 0) {
+                /* I am the child */
+                child1();
+                exit(0); // this part is important to keep forks from getting out of control
+            }
+    
+    exit(status) = terminates a process execution and return status
+
+    pid = waitpid(pid, &statloc, options) // wait for a child to terminate
+        pipe observer can use wait() which waits for every child
+
+    s = execve(name, argv, environp) // replace a process' core image
+        sometimes you don't want a full copy of the parent, sometimes you just need a different child process
+        this is how you do it
+
+    bash << EOF // feed bash until EOF is given
+        > ls | wc
+        > EOF
+    if you stacktrace (strace) this you can follow the forks bash creates to create children for ls and piping it into wc
+        strace -f bash << EOF
+        you'll see forks and execve calls
+    
+    fd = open(file, how, ... ) // open a file for reading, writing or both
+    s = close(fd) // close an open file
+    n = read(fd, buffer, nbytes) // read data from a file into a buffer
+    n = write(fd, buffer, nbytes) // write data from a buffer into a file
+    position = lseek(fd, offset, whence) // move the file pointer
+    s = stat(name, &buf) // get a file's status information (stat)
+
+File management
+    s = mkdir(name, mode) 
+    s = rmdir(name) // remove an empty directory
+    s = link(name1, name2) // create a new entry, name2, pointing to name1
+    s = unlink(name) // remove a directory entry
+    s = mount(special, name, flag) // mount a file system
+    s = umount(special) // unmount a file system
+
+    s = chdir(dirname) // change the working directory (cd)
+    s = chmod(name, mode) // change a file's protection bits - change permissions
+    s = kill(pid, signal) // send a signal to a process to encourage death
+    seconds = time(&seconds) // elapsed time since Jan. 1, 1970
+
+Before writing pipe observer, write a simple main that demonstrates parent and child and outputting
+    appropriate things in the console to inform of status
+    getpid()
+
+More OS design history
+    MINIX 
+        Make the kernel as small as possible
+        Most functionality and services run in user mode
+        Not very high performance power, processes always have to wait for a small kernel
+            before communicating with each other
+    
+    Virtual Machines
+        Allows for more than one OS to be run
+        Hypervisor simulates appropriate hardware and then OS can use this "hardware"
+
+
+
+
+
+** New Chapter **
+Parallelism
+    pseudoparallelism
+        modern computers do a lot of different things at the same time
+        in uni-processor system, CPU only runs ones process at any moment
+        in multiprogramming system, CPU switches processes quickly, which in human perception appears to be parallelized
+            usually runs tasks for each process for tens to hundreds of ms before switching
+            similar to how motion pictures work
+    process model
+        program counter - the master record of which process gets CPU time when
+            simulates multiple program counters but is actually just a long, repeated list of process segments that need
+            to be run
+        process is different from program
+            programs may have multiple processes
+        process creation
+            system init
+            execution of a process creation system call by running a process
+            user request to create new process
+            initiation of batch job
+        process termination
+            normal exit (voluntary)
+            error exit (voluntary)
+            fatal error (involuntary)
+            killed by another process (involuntary)
+        
