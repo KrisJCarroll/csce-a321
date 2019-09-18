@@ -1,0 +1,62 @@
+Simulating Parallelization
+    State machines for each process
+    As well as a lot of other information used for
+        process management
+            registers
+            program counter
+            etc.
+        memory management
+            pointers to various important memory addresses
+        file management
+
+Threads
+    difference from a process?
+        process encapsulates an entire program with one address space
+        threads are lightweight processes inside a big process
+
+    important for applications and programs that need to be able to monitor multiple things at the same time
+        word processor handling keyboard input, disk read/write, and standard output at the same time
+        web servers handling multiple connetions at the same time
+    
+    have their own program counter and register set and stack
+    may share code and data with other threads in the same process
+        but not other processes!
+    
+    converting single-threaded code to multi-threaded code is difficult
+        reliance on global variables which all threads will share (such as errno)
+
+    however, designing from the beginning you can design around conflict points
+        private global variables per thread
+        etc.
+
+    issues
+        race conditions
+            occurs when two threads attempt to access the same shared memory at the same time
+                (simultaneous atm withdrawal with two cards)
+            racing for a global, shared variable
+            doesn't always happen, usually the two withdrawals aren't exactly simultaneous but it can happen
+            ex:
+                Therac-25
+            addressed by identifying critical portions of code where race conditions can result
+                - blocks access to those critical portions if currently being accessed by another thread
+                - how?
+                    disabling interrupts (old, not used anymore)
+                    software lock variable
+                        test variable before entering critical region to determine if region is locked
+                        this is another race condition, both could read unlocked at the same time
+                    strict alternation
+                        force the processes to take turns
+                        (one reads unlocked on 0, the other reads unlocked on 1)
+                        however you don't always want this alternating behavior
+                    express interest first
+                        will be told after expressing interest when its their turn to go
+                        this was ultimately implemented in modern hardware
+                        ** read about this in the textbook **
+
+                drawbacks?
+                    issue where a lower priority process is already in critical region when a higher priority
+                    process needs access
+                        - higher priority process will waste CPU while it spins at the lock, using CPU time and preventing
+                            the lower priority process from leaving the lock
+                        - attempts to address this include identifying this and sending the high priority to process to sleep briefly
+                        
