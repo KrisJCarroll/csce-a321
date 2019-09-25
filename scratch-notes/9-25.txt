@@ -1,0 +1,96 @@
+Assignment 2 extended to Oct 7th 2 AM
+
+    fd = open(.....);
+    size = lseek(.....);
+    void* file_in_memory = mmap(.....); // void pointer points at the beginning of some unknown thing, cannot be dereferenced
+                                        // can increment and goes to next byte (in *most* machines)
+        // makes a pointer to beginning of file mapped in memory
+        // file organized in blocks that contain 32 bytes (each prefix followed by name followed by padding)
+        // so we should use an array of blocks of 32 bytes
+
+    typedef struct {
+        char prefix[6];
+        char location[25];
+        char padding;
+    } entry_t;
+
+    // now we can use this new struct to grab things
+    entry_t* data_array = (entry_t *) file_in_memory; // cast this into our new struct
+    entry_t data_array[] = (entry_t*) file_in_memory; // same thing as above, different form
+
+    data_array[0].prefix // access to the 0th element
+
+    // now we can have a method that compares the prefixes for sorting
+    int cmp_prefix(char a_prefix[6], char b_prefix[6]) {
+        for (int i = 0; i < 6; i++) {
+            if (a_prefix[i] > b_prefix[i]) return 1;
+            if (a_prefix[i] < b_prefix[i]) return -1;
+        }
+        return 0; // they're equal, found the prefix
+    }
+
+
+    /* ----------------------------------------------------------------------------------------------------------
+            CAUTION: FORK TESTING HAPPENING BELOW THIS LINE - PROCEED WITH CAUTION OR GET FORKED
+    ---------------------------------------------------------------------------------------------------------- */
+    #include <unistd.h>
+    #include <errno.h>
+    #include <stdio.h>
+    #include <string.h>
+
+    pid_t child_pid;
+
+    printf("Hello, I am the process %d before the fork \n", (int)getpid());
+
+    child_pid = fork();
+    // on failure, -1 returned to parent
+    if (child_pid < 0) {
+        fprintf(stderr, "fork() did not work: %s\n", strerror(errno));
+        return -1;
+    }
+    // Fork worked, we are either the child or the parent
+    if (child_pid == 0) { 
+        // I am the child, id of 0
+        return 0
+    }
+
+    // I am the parent
+    printf("My child process has PID: %d\n", (int) child_pid);
+
+
+Exam is open textbook + reference card (letter sized)
+Printout of any man page you wish (or if you're in airplane mode - can use that for manpages)
+Chapters 1 & 2
+
+Scheduling in Batch Systems - Methods
+    First Come, First Served
+        disadvantages -
+            long jobs block short jobs due to poor timing
+            even if short jobs need tiny amounts of processing time, they still are slowed by other processes ahead
+    Shortest Task First
+        provably optimal for turnaround times
+            when all jobs are available simultaneously
+            and time needed is known
+    
+Scheduling in Interactive Systems
+    Round-robin
+        handle each process in turn for a max time before moving on to the next, continue until processe are complete
+        higher average turnaround than shortest first, but better response (make progress on each process regularly)
+        time parameter is called quantum - this value is important
+            quantum too big = first come first serve
+            too small = context switches, high overhead, low CPU util
+                penalty depends on how long the context switch takes
+                    quantum 4 msec but context switch of 1 msec, 20% CPU wasted
+            however, should be small enough to maintain interactive nature of the system for user
+    Priority Scheduling
+        handled processes according to priority
+    Multiple Queues
+        different queues for CPU-bound processes and interactive processes
+        not good for processes that can be either CPU-bound and later interactive
+    Shortest Process next
+        similar to shortest task first in batch systems (mostly theoretical)
+    Guaranteed Scheduling
+    Lottery Scheduling
+    Fair-share Scheduling
+
+
