@@ -61,6 +61,10 @@ Assignment 2 extended to Oct 7th 2 AM
 Exam is open textbook + reference card (letter sized)
 Printout of any man page you wish (or if you're in airplane mode - can use that for manpages)
 Chapters 1 & 2
+    How does a system call work
+    How does interprocess communication work? Two processes, how to send information to each other
+    How to implement semaphores with hardware support (test and set lock + other solution)
+    Ugly interface, beautiful interface offered by operating system - use OS to implement features not in instruction set
 
 Scheduling in Batch Systems - Methods
     First Come, First Served
