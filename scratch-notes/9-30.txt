@@ -1,0 +1,61 @@
+Exam Review Questions
+
+    Implementing features in the OS that are no longer supported by the instruction set - what does this mean?
+        Example dividing by 0 - a hardware interrupt is mimicked, the operating system is run in kernel mode,
+            simulate registers that can handle the instruction that no longer exists
+            pop into kernel mode to force the CPU to calculate the simulated registers
+            come back to user mode and have access to the data necessary for the instruction to have been performed
+
+    Why do we say the syscall interface abstracts the hardware?
+        Lots of different systems, 32-bit, 64-bit, ARM, Raspberry Pi
+        Network card in 32-bit has access to a pin on the processor that allows for an interrupt
+        However on Raspberry Pi, the network card is attached to a USB hub which is then connected to the processor
+            However, this is still approached the same way from our point of view, thus the interface is abstracting
+            away how the hardware actually performs when the syscalls are made.
+        
+    Creation/termination
+        In Linux, handled by forking and typically allow processes to terminate themselves
+            - kill sends signal to process which unless specified to say something else, suggests the process should die
+            - however, this type of signal can also communicate other things such as whether or not to take user input again
+        in Windows, killing the process will actually forcefully terminate the process
+
+    grep
+                    ___________________________
+        stdin ---> | GREP : Regular Expression | --> stdout
+                    ---------------------------
+    
+    tee
+                     _____
+        stdin ----> | tee | ----> stdout
+                     -----
+                       |
+                       |
+                       v
+                      file
+
+    How do you prevent race conditions?
+        Determine shared memory locations and use mutexes to control access to critical sections
+
+Homework grades got boosted because it's taking so long!
+    Homework is generally not going to be any of the same material focused on as the exams
+
+
+Chapter 3 - Memory Management
+
+    Looking at malloc, calloc insides - very ugly but the hardware is even uglier
+    Homework 3 will be to implement malloc, calloc, and free with system 2 calls
+        mmap a file, if the file is empty, this is free memory that can be used to allocate and deallocate memory
+
+    Before memory abstraction, careful monitoring of physical address space needed to be undertaken for 
+        programs to run concurrently.
+    
+    Early abstraction allowed for storing a base and limit register for each program
+        then when the program references a memory location, it would add base to the location mentioned
+        if value was higher than limit register, trap and allow OS to handle the violation accordingly
+
+    Now, there are tons of background processes that are running on a system, not enough memory to hold them all at once
+        now have to swap them in and out as needed
+        create virtual memory
+    
+
+
