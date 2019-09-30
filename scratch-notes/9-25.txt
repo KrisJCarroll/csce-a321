@@ -61,10 +61,24 @@ Assignment 2 extended to Oct 7th 2 AM
 Exam is open textbook + reference card (letter sized)
 Printout of any man page you wish (or if you're in airplane mode - can use that for manpages)
 Chapters 1 & 2
-    How does a system call work
+    How does a system call work, what is the purpose of it?
+        Process status word - special register in most architectures that provides a storage area for important data in the processor
+            you might need somewhere else but aren't quite sure 
+            Ex: 111111111111 + 00000000001 --> carryout bit usually goes to the process status word register
+                Some operations may get carry in bit from this register
+                Sometimes contains access codes for instruction set
+            Syscall copies process status word into memory and then sets the values according to what is expected after the process
+                runs again
+            
     How does interprocess communication work? Two processes, how to send information to each other
+        How to protect critical sections
     How to implement semaphores with hardware support (test and set lock + other solution)
+        protect and TSL(test and set lock) instructions (or other atomic instructions)
+        spin locks
+        question will be bound to a specific processor built by a specific vendor but supplied with documentation to answer the question
     Ugly interface, beautiful interface offered by operating system - use OS to implement features not in instruction set
+        Emulation to produce features not provided in the instruction set of the hardware
+        Process creation - create a process
 
 Scheduling in Batch Systems - Methods
     First Come, First Served
