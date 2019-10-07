@@ -9,7 +9,8 @@ Exam Review Questions
     Why do we say the syscall interface abstracts the hardware?
         Lots of different systems, 32-bit, 64-bit, ARM, Raspberry Pi
         Network card in 32-bit has access to a pin on the processor that allows for an interrupt
-        However on Raspberry Pi, the network card is attached to a USB hub which is then connected to the processor
+        However on Raspberry Pi, the network card is attached to a USB hub which is then connected to the 
+	processor
             However, this is still approached the same way from our point of view, thus the interface is abstracting
             away how the hardware actually performs when the syscalls are made.
         
