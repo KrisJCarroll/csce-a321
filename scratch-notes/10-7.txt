@@ -1,0 +1,73 @@
+Next exam is going to be much more of a beatdown, prepare your butts.
+
+Exam review:
+
+    1)
+        c) Trap is the abstract instruction that the syscall is actually representing.
+    
+    2) Pretty much TSL or Exchange but using SWAP as the atomic action
+
+    I didn't catch the rest, there was a lot of grandstanding soapbox stuff going on. It was very
+    entertaining
+
+Assignment 3
+
+    Implementing malloc, calloc, realloc and free with boilerplate code provided (implementation.c)
+        Should be based solely on mmap and munmap
+        realloc may need to change pointers if there is not enough space to allocate new memory
+            will need to be able to copy current contents and find a new home for them
+        
+    Competition - $20 for the fastest malloc, calloc, realloc, and free.
+    You need to use your own terminal than the one you're compiling from or gcc will try and use 
+        your malloc and will not work unless you're a god
+
+    USE GDB FOR DEBUGGING BECAUSE YOU CANNOT PRINTF
+
+    This is terrifying. Please hold me.
+
+    Main program needs to test all fringe cases of all of these functions.
+        malloc(0), malloc() a thing and then realloc() a thing and then free(), etc.
+
+    Need a data structure that can handle allocation with mmap (up to your minimum), then give
+        the allocated bytes and the rest remains free
+        eat up the mmap over time and when you're out of memory, mmap some more.
+
+        However, you'll need to maintain the free holes that end up appearing as memory is freed
+        if an entire area of mmap'ed memory is free, munmap it
+
+        only mmap in multiples of your header to prevent any situation where your header won't fit
+        or partially functions
+    
+
+Memory Management with Linked Lists
+
+    Single linked list, double linked list
+
+    Strategies to allocate free memory
+        First fit
+        Next fit
+        Best fit
+        Worst fit
+        Quick fit
+
+    Virtual memory - allocated in chunks called pages, how does it work?
+        Virtual addresses sent to the Memory Management Unit (MMU)
+        The MMU sends physical addresses to the memory
+
+        Virtual pages are the same size as pages in physical memory
+            These virtual pages are mapped to their physical page equivalent when needed by the MMU
+        
+        If a call comes in to an address that is not mapped, the system traps
+
+    Speeding up paging
+        
+        If virtual address space is large, page table will be large
+        Every process should have its own page table in memory
+
+        
+
+
+
+
+
+    
