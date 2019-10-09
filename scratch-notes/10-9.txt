@@ -1,0 +1,32 @@
+Speeding up paging cont.
+
+    To deal with large page tables, use translation lookaside buffers
+        slightly slower than registers but extremely fast compared to memory
+        this exists actually on the CPU die
+
+    Page replacement algorithms
+    
+        Optimal page replacement algorithm - mostly theory since it requires an oracle
+
+        Not recently used
+            replaces pages based on usage
+            R (read) and M (modified) bit - originally set to 0. R bit is cleared periodically
+                4 Classes, combinations of reference and modified
+                    0: not R, not M
+                    1: not R, M
+                    2: R, not M
+                    3: R, M
+                Lowest class used for decision making
+
+        FIFO
+            replace the oldest page
+            super crap algo
+        
+        2nd Chance
+            Making FIFO less crap by stopping heavily used pages from being thrown out
+
+        
+        
+
+    Review paging and page faults and crap
+
