@@ -1,15 +1,17 @@
 #include <string.h>
+#include <stdio.h>
 
 int lines = 10;
 int BUFF_SIZE = 4096;
 
-size_t _strln(const char *str) {
-    size_t i;
-    for (i = 0; (*str); i++) {}
-    return i;
+int _strln(const char *str) {
+    if (*str)
+        return 1 + _strln(++str);
+    return 0;
 }
 
 int main(int argc, char const *argv[]) {
     char *msg = "apple";
-    printf(_strln(msg));
+    printf("%d\n", _strln(msg));
+    return 0;
 }
