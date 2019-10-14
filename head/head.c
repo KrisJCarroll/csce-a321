@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 
 int _strlen(const char *str) {
@@ -13,6 +14,12 @@ int _strlen(const char *str) {
 int _atoi(const char *str) {
     int res = 0;
     while (*str) {
+        int next_digit = (*str) - '0';
+        if (next_digit < 0 || next_digit > 9) {
+            errno = EINVAL;
+            write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+            exit(-1);
+        }
         res = res * 10 + (*str) - '0';
         ++str;
     }
