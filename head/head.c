@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 
 int _strlen(const char *str) {
@@ -52,6 +53,18 @@ int main(int argc, const char *argv[]) {
         else {
             filename = argv[i];
             printf("Filename: %s\n", filename);
+        }
+    }
+
+    // arguments handled, begin execution of head functionality
+
+    if (filename) {
+        int fd = open(filename, O_RDONLY);
+
+        // error opening
+        if (fd < 0) {
+            write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+            return -1;
         }
     }
 
