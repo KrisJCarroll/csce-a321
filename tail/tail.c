@@ -145,6 +145,12 @@ int main(int argc, const char *argv[]) {
         }
     }
 
+    // close file to clean up memory
+    if (close(fd) < 0) {
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        return -1;
+    }
+
     // we made it! return success
     return 0;
 }
