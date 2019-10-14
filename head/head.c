@@ -22,6 +22,7 @@ int _atoi(const char *str) {
 
 int main(int argc, const char *argv[]) {
     const char* filename;
+    int fd;
     int NUM_LINES = 10;
     int BUFF_SIZE = 4096;
 
@@ -57,9 +58,9 @@ int main(int argc, const char *argv[]) {
     }
 
     // arguments handled, begin execution of head functionality
-
+    // if we have a filename, use the file for reading
     if (filename) {
-        int fd = open(filename, O_RDONLY);
+        fd = open(filename, O_RDONLY);
 
         // error opening
         if (fd < 0) {
@@ -68,5 +69,34 @@ int main(int argc, const char *argv[]) {
         }
     }
 
-    printf("Number of lines: %d\n", NUM_LINES);
+    // no filename provided, set fd to stdin
+    else {
+        fd = STDIN_FILENO;
+    }
+
+    int linecount = 0;
+    char curr_char;
+    ssize_t read_result;
+    ssize_t write_result;
+    // begin reading and writing
+    while(linecount < NUM_LINES) {
+        read_result = read(fd, &curr_char, 1);
+        // read error
+        if(read_result < 0) {
+            write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+            return -1;
+        }
+
+        // check for newline character '\n'
+        if (curr_char == '\n') {
+            linecount++;
+        }
+        write_result = write(STDOUT_FILENO, &curr_char, 1);
+
+        // write error
+        if (write_result < 0) {
+                write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+                return -1;
+        }
+    }
 }
