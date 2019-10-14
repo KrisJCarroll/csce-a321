@@ -53,7 +53,6 @@ int main(int argc, const char *argv[]) {
         // arg is assumed to be a filename, store it
         else {
             filename = argv[i];
-            printf("Filename: %s\n", filename);
         }
     }
 
