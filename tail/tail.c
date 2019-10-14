@@ -29,24 +29,32 @@ int _atoi(const char *str) {
     return res;
 }
 
+// main logic for handling line reads - takes the fd to read, a char* buffer by reference to be used for line storage
+// and int for initial size of buffer. this function will reallocate buffer as needed (doubles in size every time it fills)
+// returns the length of line for buffer if successful, returns 0 if EOF reached, and returns -1 if read failure occurs
 int _getline(int fd, char** buffer, int buf_size) {
     char ch;
     int len = 0;
     int read_result;
+    // ensure fresh allocation according to parameterized size
     *buffer = realloc(*buffer, sizeof(char) * buf_size);
+
+    // loop for adding to buffered line until EOF or newline
     while((read_result = read(fd, &ch, 1)) != 0 && ch != '\n') {
-        if (read_result < 0) return -1;
+        if (read_result < 0) return -1; // read error - pass back to caller
         (*buffer)[len++] = ch;
+        // buffer is full, increase memory allocated
         if (len == buf_size) {
             buf_size *= 2;
             *buffer = realloc(*buffer, sizeof(char) * buf_size);
         }
     }
+    // EOF found, pass this information to caller
     if(read_result == 0) {
         return 0;
     }
-    (*buffer)[len++] = '\n';
-    *buffer = realloc(*buffer, sizeof(char) * len);
+    (*buffer)[len++] = '\n'; // add the newline
+    *buffer = realloc(*buffer, sizeof(char) * len); // reallocate buffer to correct size
     return len;
 }
 
@@ -107,8 +115,8 @@ int main(int argc, const char *argv[]) {
         write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
         return -1;
     }
-    int line_num = 0;
 
+    int line_num = 0;
     int read_result;
     int write_result;
     char *line;
@@ -119,13 +127,15 @@ int main(int argc, const char *argv[]) {
             write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
             return -1;
         }
-        if(lines[line_num]) free(lines[line_num]);
+        if(lines[line_num]) free(lines[line_num]); // line storage is full so free the correct spot to make room for new line
         lines[line_num] = line;
-        line = NULL;
-        line_num = (line_num + 1) % NUM_LINES;
+        line = NULL; // 
+        line_num = (line_num + 1) % NUM_LINES; // update which line_num we're working on, wrapped around NUM_LINES
     }
 
+    // EOF was reached, write out the appropriate number of lines
     for(int i = 0; i < NUM_LINES; i++) {
+        // check if line exists (for cases where number of lines stored was less than NUM_LINES)
         if(lines[i]) {
             write_result = write(STDOUT_FILENO, lines[i], _strlen(lines[i]));
             if (write_result < 0) {
@@ -135,5 +145,6 @@ int main(int argc, const char *argv[]) {
         }
     }
 
+    // we made it! return success
     return 0;
 }
