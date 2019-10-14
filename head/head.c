@@ -23,7 +23,7 @@ int main(int argc, const char *argv[]) {
     int NUM_LINES = 10;
     int BUFF_SIZE = 4096;
 
-    if(argc > 3) {
+    if(argc > 4) {
         errno = E2BIG;
         char* error_str = strerror(errno);
         write(STDERR_FILENO, error_str, _strlen(error_str));
@@ -31,7 +31,7 @@ int main(int argc, const char *argv[]) {
     }
     for (int i = 1; i < argc; i++) {
         if(*argv[i] == '-') {
-            if(*argv[i]++ != 'n') {
+            if(*(++argv[i]) != 'n') {
                 errno = EINVAL;
                 char* error_str = strerror(errno);
                 write(STDERR_FILENO, error_str, _strlen(error_str));
@@ -42,6 +42,7 @@ int main(int argc, const char *argv[]) {
         }
         else {
             const char* filename = argv[i];
+            printf("Filename: %s\n", filename);
         }
     }
 
