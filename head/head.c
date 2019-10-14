@@ -1,5 +1,4 @@
-#include <string.h>
-#include <stdio.h>
+#include <string.h> // only used for strerror()
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
