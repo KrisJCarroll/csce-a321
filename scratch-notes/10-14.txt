@@ -1,0 +1,28 @@
+Pages cont.
+
+    Clock page replacement - circular linked list of pages
+        - page fault occurs, page the hand is pointing to is inspected
+            - action depends on R bit (R = 0 - EVICT page and load new page, R = 1 - clear R and advance hand)
+    
+
+    Last Recently Used algorithm
+        - approximation of the optimal algorithm
+            - pages that have not b een used for ages will likely remain that way
+            - when page fault occurs, throw out page that has been unused for the longest
+
+        - implementation
+            - record time or use linked list for all pages in memory
+            - hardware counter or a matrix
+
+            - hard to implement efficiently
+        
+        - sometimes simulated with software (NFU)
+
+    Not Frequently Used 
+        - record referenced times of pages
+        - when page fault, lowest page is evicted
+    
+    Working Set Page replacement
+        - load pages on demand, not in advance
+        - processes reference a small fraction of their pages 
+        
