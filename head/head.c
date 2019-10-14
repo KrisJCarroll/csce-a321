@@ -1,13 +1,12 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
 
-int lines = 10;
-int BUFF_SIZE = 4096;
 
-int _strln(const char *str) {
+int _strlen(const char *str) {
     if (*str)
-        return 1 + _strln(++str);
+        return 1 + _strlen(++str);
     return 0;
 }
 
@@ -20,12 +19,31 @@ int _atoi(const char *str) {
     return res;
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, const char *argv[]) {
+    int NUM_LINES = 10;
+    int BUFF_SIZE = 4096;
+
     if(argc > 3) {
         errno = E2BIG;
-        printf("ERROR: %s\n",strerror(errno));
+        char* error_str = strerror(errno);
+        write(STDERR_FILENO, error_str, _strlen(error_str));
+        return -1;
+    }
+    for (int i = 1; i < argc; i++) {
+        if(*argv[i] == '-') {
+            if(*argv[i]++ != 'n') {
+                errno = EINVAL;
+                char* error_str = strerror(errno);
+                write(STDERR_FILENO, error_str, _strlen(error_str));
+                return -1;
+            }
+            NUM_LINES = _atoi(argv[i + 1]);
+            i++;
+        }
+        else {
+            const char* filename = argv[i];
+        }
     }
 
-    char* int_test = "123456";
-    printf("%d\n", _atoi(int_test));
+    printf("Number of lines: %d\n", NUM_LINES);
 }
