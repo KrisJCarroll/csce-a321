@@ -33,5 +33,27 @@ int main(int argc, const char *argv[]) {
         return -1;
     }
 
+    // handling arguments
+    for (int i = 1; i < argc; i++) {
+        // looking for -n flag
+        if(*argv[i] == '-') {
+            // flag found wasn't -n, error out
+            if(*(++argv[i]) != 'n') {
+                errno = EINVAL;
+                char* error_str = strerror(errno);
+                write(STDERR_FILENO, error_str, _strlen(error_str));
+                return -1;
+            }
+            // -n found, set number of lines
+            NUM_LINES = _atoi(argv[i + 1]);
+            i++;
+        }
+
+        // arg is assumed to be a filename, store it
+        else {
+            filename = argv[i];
+        }
+    }
+
     return 0;
 }
