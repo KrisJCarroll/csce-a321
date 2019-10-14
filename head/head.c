@@ -24,7 +24,6 @@ int main(int argc, const char *argv[]) {
     const char* filename;
     int fd;
     int NUM_LINES = 10;
-    int BUFF_SIZE = 4096;
 
     // checking for too many arguments
     if(argc > 4) {
@@ -98,4 +97,12 @@ int main(int argc, const char *argv[]) {
                 return -1;
         }
     }
+
+    // close file to clean up memory
+    if (close(fd) < 0) {
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        return -1;
+    }
+
+    return 0;
 }
