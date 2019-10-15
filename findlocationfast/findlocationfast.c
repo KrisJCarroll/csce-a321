@@ -29,9 +29,19 @@ int _atoi(const char *str) {
     return res;
 }
 
+int _strcmp(const char* first, const char* second) {
+    while ((*first) && (*second)) {
+        if (*first < *second) return -1;
+        if (*first > *second) return 1;
+        first++;
+        second++;
+    }
+    return 0; // they are the same strings
+}
+
 int main(int argc, const char* argv[]) {
     const char* filename;
-    const char* prefix;
+    const char* user_prefix;
     int fd;
     int read_result;
 
@@ -57,7 +67,7 @@ int main(int argc, const char* argv[]) {
             return -1;
         }
         _atoi(argv[2]); // checking for proper integer format
-        prefix = argv[2];
+        user_prefix = argv[2];
     }
     else {
         return -1;
@@ -83,12 +93,10 @@ int main(int argc, const char* argv[]) {
     //write(STDOUT_FILENO, &entries, sizeof(entries));
 
     off_t loc = lseek(fd, (size / 2), SEEK_SET);
-    char* test_prefix;
     entry_t entry;
     read_result = read(fd, &entry, sizeof(entry));
     write(STDOUT_FILENO, entry.prefix, sizeof(entry.prefix));
     write(STDOUT_FILENO, "\n", 1);
     write(STDOUT_FILENO, entry.location, sizeof(entry.location));
-    
     
 }
