@@ -39,6 +39,7 @@ int _strcmp(const char* first, const char* second) {
     return 0; // they are the same strings
 }
 
+
 int main(int argc, const char* argv[]) {
     const char* filename;
     const char* user_prefix;
@@ -89,14 +90,18 @@ int main(int argc, const char* argv[]) {
 
     // getting size
     off_t size = lseek(fd, size, SEEK_END);
-    //int entries = (int) size / sizeof(entry_t);
-    //write(STDOUT_FILENO, &entries, sizeof(entries));
 
     off_t loc = lseek(fd, (size / 2), SEEK_SET);
     entry_t entry;
+
+    while (loc > 0 && loc < size) {
+        // TODO: implement this - see whiteboard
+    }
+    
     read_result = read(fd, &entry, sizeof(entry));
     write(STDOUT_FILENO, entry.prefix, sizeof(entry.prefix));
     write(STDOUT_FILENO, "\n", 1);
     write(STDOUT_FILENO, entry.location, sizeof(entry.location));
     
+    return 0;
 }
