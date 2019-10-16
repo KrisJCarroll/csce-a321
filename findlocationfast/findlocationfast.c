@@ -89,19 +89,35 @@ int main(int argc, const char* argv[]) {
     } entry_t;
 
     // getting size
-    off_t size = lseek(fd, size, SEEK_END);
+    off_t window_max = lseek(fd, 0, SEEK_END);
+    off_t window_min = 0;
+    off_t loc = (window_max / 2) + (window_max % sizeof(entry_t));
 
-    off_t loc = lseek(fd, (size / 2), SEEK_SET);
     entry_t entry;
+    char* location;
 
-    while (loc > 0 && loc < size) {
-        // TODO: implement this - see whiteboard
+    while (loc > window_min && loc < window_max) {
+        lseek(fd, loc, SEEK_SET);
+        read(fd, &entry, sizeof(entry_t));
+        int result = _strcmp(user_prefix, entry.prefix);
+        // found a match, output location and end with code 0
+        if (result == 0) {
+            write(STDOUT_FILENO, entry.location, sizeof(entry.location));
+            write(STDOUT_FILENO, "\n", 1);
+            return 0;
+        }
+        else if (result > 0) {
+            window_min = loc;
+            loc += (window_max - window_min) / 2;
+            loc += (loc % sizeof(entry_t));
+        }
+        else if (result < 0) {
+            window_max = loc;
+            loc -= (window_max - window_min) / 2;
+            loc -= (loc % sizeof(entry_t));
+        }
     }
-    
-    read_result = read(fd, &entry, sizeof(entry));
-    write(STDOUT_FILENO, entry.prefix, sizeof(entry.prefix));
-    write(STDOUT_FILENO, "\n", 1);
-    write(STDOUT_FILENO, entry.location, sizeof(entry.location));
+
     
     return 0;
 }
