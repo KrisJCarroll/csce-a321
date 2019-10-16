@@ -1,0 +1,116 @@
+File Systems
+
+    Essential for long-term information storage
+        - must be possible to store large amount of information
+        - information persistent through process termination
+        - accessible to multiple processes concurrently
+
+    Disk can be thought of as a linear sequence of fixed-sized blocks
+        - supports reading and writing of blocks
+        - how do you find information?
+        - how do you keep one user from reading another's data?
+        - how do you know which blocks are free?
+
+    Files 
+        - logical units of information created by processes
+            * similar to kind of address space
+        - managed by file system 
+            * determines their format, how they're read from and written to, etc.
+
+        - naming
+            * symbolic representation of the file address space
+            * two-part file names came about later
+                - extension used to indicate characteristics or expectations of file
+                    extensions are a convention in Unix, however Windows uses extensions to determine which program should
+                        process it
+
+        - file structures can vary by file
+            * byte sequence
+                - can access bytes individually
+            * record sequence
+                - cannot access the bytes directly, only access at the record level
+            * tree
+                - some files are organized as a data structure (such as databases)
+
+        - types 
+            * regular file - ASCII or binary
+                - ASCII human readable and can be displayed and printed easily
+                - Binary is program readable and have an internal structure that can be read by programs
+            * directory - file that keeps track of files
+            * character special files
+                - I/O where you read/write bytes at a time
+            * block special files
+                - files to represent disks where blocks of space are allocated
+
+        - access
+            * file descriptor - small integer representing kernel-managed object that processes can read/write to
+                - every process has private space of file descriptors starting at 0
+                    0 - standard input
+                    1 - standard output
+                    2 - standard error
+            * system call - read() and write() which are passed file descriptors to perform the read/write
+
+        - attributes
+
+        - operations
+            various system calls that are defined for file operations (may vary by system)
+
+    Directory Systems
+
+        - hierarchical directory Systems
+            used to organize the mess that can exist when multiple users or even multiple programs wish to 
+                store files on the same file system
+        - path names
+            data structure to indicate the travel paths for accessing different directory locations
+            special entries - 
+                . - refers to the current directory
+                .. - parent directory
+
+        - operations - system calls for operating and managing directories
+            * create
+            * delete
+            * read directory
+            * open directory
+            * close directory
+            * link - indicates a file should appear in more than one directory, increments file's i-node counter
+                - symbolic links - name created pointing to a tiny file naming another file
+            * unlink
+            * etc
+
+    Implementation
+
+        Considerations
+
+        - Users 
+            How files are named, what operations are allowed, directory tree appearance
+        - Implementors
+            How files and directories are stored, how disk space is managed for these file systems
+            Efficiency and reliability
+
+    Layout
+
+        Stored on disks, which are frequently partitioned
+        First sector is special and contains the Master Boot Record which boots the computer
+            BIOS reads and executes the MBR
+            MBR locates active partition and boots from the boot block, which brings in the OS
+
+
+    Allocation
+
+        Linked List
+            - files stored as a linked list of blocks of memory
+            - this can't be randomly accessed or searched very efficiently
+            - can be referenced through a table in memory, where each block in memory points where the next block is
+                * O(n) for seeking file but now it's in memory instead of disk which is much faster
+                * however, this table in memory can be lost if computer isn't properly shut down and changes aren't written
+                    back to disk
+        
+        I-nodes - holds attributes and addresses for the first (8) blocks of disk space for the file
+            - also has the address of additional block of pointers which is stored on disk to find the remaining blocks
+                if the file is very large
+            
+            - can keep track of owners and how many different links there are to the file
+
+        
+        
+        
