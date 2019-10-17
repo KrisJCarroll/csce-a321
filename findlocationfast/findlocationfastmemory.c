@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <sys/mman.h>
 
 // recursive implementation of strlen()
 int _strlen(const char *str) {
@@ -77,6 +78,33 @@ int main(int argc, const char* argv[]) {
         return -1;
     }
 
-    
+    // struct for casting data read from file into its expected form
+    // source: Dr. Christoph Lauter
+    typedef struct {
+        char prefix[6];
+        char location[25];
+        char padding;
+    } entry_t;
+
+    // opening file
+    if ((fd = open(filename, O_RDONLY)) < 0) {
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        write(STDERR_FILENO, "\n", 1);
+        return -1;
+    }
+
+    off_t size = lseek(fd, 0, SEEK_END);
+
+    // putting file in memory and casting into entry_t structs
+    void* file_in_mem = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (file_in_mem == MAP_FAILED) { // error handling
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        write(STDERR_FILENO, "\n", 1);
+        return -1;
+    }
+    entry_t* entries = (entry_t *) file_in_mem;
+    write(STDOUT_FILENO, entries[0].prefix, sizeof(entries[0].prefix));
+
+
     return 0;
 }
