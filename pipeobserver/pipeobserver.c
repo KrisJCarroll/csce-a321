@@ -31,7 +31,12 @@ int main(int argc, const char* argv[]) {
     pid_t pid1;
     pid_t pid2;
     
-    parse_args(argc, argv, &filefd);
+    if (parse_args(argc, argv, &filefd) < 0) {
+        errno = EINVAL;
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        write(STDERR_FILENO, "\n", 1);
+        return 1;
+    }
 
 
     return 0;
