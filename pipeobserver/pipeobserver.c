@@ -21,6 +21,7 @@ int _strcmp(const char* first, const char* second) {
     return 0; // they are the same strings
 }
 
+// TODO: get cmds and argvs by reference so they're available to main()
 int parse_args(int argc, const char* argv[], int *fd) {
     int i;
     const char* filename = argv[1];
@@ -30,7 +31,7 @@ int parse_args(int argc, const char* argv[], int *fd) {
     const char* argv2[5];
 
     const char* usage = "ERROR: expected usage is ./pipeobserver <filename> [ process1 args ] [ process2 args ]\n";
-    if ((*fd = open(filename, O_WRONLY | O_APPEND | O_CREAT)) < 0) {
+    if ((*fd = open(filename, O_RDWR | O_APPEND | O_CREAT), 0777) < 0) {
         write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
         write(STDERR_FILENO, "\n", 1);
         return -1;
@@ -47,7 +48,7 @@ int parse_args(int argc, const char* argv[], int *fd) {
     i = 4;
     int count = 1;
     while (_strcmp(argv[i], "]") != 0) {
-        if (i+1 == argc) {
+        if (i + 1 > argc) {
             errno = EINVAL;
             write(STDERR_FILENO, usage, _strlen(usage));
             return -1;
@@ -59,16 +60,18 @@ int parse_args(int argc, const char* argv[], int *fd) {
     argv1[count] = NULL;
 
     // parsing second executable and associated args
-    if (_strcmp(argv[i++], "[")) {
+    if (_strcmp(argv[++i], "[") != 0) {
+        write(STDERR_FILENO, "abc", 3);
         errno = EINVAL;
         write(STDERR_FILENO, usage, _strlen(usage));
         return -1;
     }
-    cmd2 = argv[i++];
+    cmd2 = argv[++i];
+    i++;
     argv2[0] = cmd2;
     count = 1;
     while (_strcmp(argv[i], "]") != 0) {
-        if (i + 1 == argc) {
+        if (i + 1 > argc) {
             errno = EINVAL;
             write(STDERR_FILENO, usage, _strlen(usage));
             return -1;
@@ -79,7 +82,6 @@ int parse_args(int argc, const char* argv[], int *fd) {
     }
     argv2[count] = NULL;
 
-
     return 0;
 }
 
@@ -87,9 +89,7 @@ int main(int argc, const char* argv[]) {
 
     int filefd = 0;
 
-    int fd1[2]; // piped process writes to fd1[1] for parent to read at fd1[0]
-    int fd2[2]; // parent writes at fd2[1] for child1 to read at fd2[0]
-    int fd3[3]; // parent writes at fd3[1] for piped process to read at fd3[0]
+    int pipe1[2]; // child1 will connect STDOUT to pipe1[1], child2 will connect STDIN to pipe1[0]
     pid_t pid1;
     pid_t pid2;
     
@@ -100,6 +100,17 @@ int main(int argc, const char* argv[]) {
         return 1;
     }
 
+    if (pipe(pipe1) < 0) {
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        write(STDERR_FILENO, "\n", 1);
+        return 1;
+    }
+
+    if ((pid1 = fork()) < 0) {
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        write(STDERR_FILENO, "\n", 1);
+        return 1;
+    }
 
     return 0;
 }
