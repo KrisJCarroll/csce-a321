@@ -23,7 +23,7 @@ int _atoi(const char *str) {
             errno = EINVAL;
             write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
             write(STDIN_FILENO, "\n", 1);
-            exit(-1);
+            exit(1);
         }
         res = res * 10 + next_digit;
         ++str;
@@ -45,21 +45,20 @@ int main(int argc, const char* argv[]) {
     const char* filename;
     const char* user_prefix;
     int fd;
-    int read_result;
 
     // checking for too many arguments
     if (argc > 3) {
         errno = E2BIG;
         write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
         write(STDIN_FILENO, "\n", 1);
-        return -1;
+        return 1;
     }
     // checking for filename arg
     if (!argv[1]) {
         errno = ENOENT;
         write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
         write(STDIN_FILENO, "\n", 1);
-        return -1;
+        return 1;
     }
     filename = argv[1];
 
@@ -69,13 +68,13 @@ int main(int argc, const char* argv[]) {
             errno = EINVAL;
             write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
             write(STDIN_FILENO, "\n", 1);
-            return -1;
+            return 1;
         }
         _atoi(argv[2]); // checking for proper integer format
         user_prefix = argv[2];
     }
     else {
-        return -1;
+        return 1;
     }
 
     // struct for casting data read from file into its expected form
@@ -90,21 +89,56 @@ int main(int argc, const char* argv[]) {
     if ((fd = open(filename, O_RDONLY)) < 0) {
         write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
         write(STDERR_FILENO, "\n", 1);
-        return -1;
+        return 1;
     }
 
     off_t size = lseek(fd, 0, SEEK_END);
+    int num_entries = size / sizeof(entry_t);
 
     // putting file in memory and casting into entry_t structs
     void* file_in_mem = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (file_in_mem == MAP_FAILED) { // error handling
         write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
         write(STDERR_FILENO, "\n", 1);
-        return -1;
+        return 1;
     }
-    entry_t* entries = (entry_t *) file_in_mem;
-    write(STDOUT_FILENO, entries[0].prefix, sizeof(entries[0].prefix));
 
+    // close file as we're done with it
+    if (close(fd) < 0) {
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        write(STDERR_FILENO, "\n", 1);
+        return 1;
+    }
 
-    return 0;
+    entry_t* entries = (entry_t *) file_in_mem; // casting as array of entry_t for easy access
+
+    // binary search
+    int window_min = 0;
+    int window_max = num_entries - 1;
+    int loc = (window_min + window_max) / 2;
+
+    while(loc > window_min && loc < window_max) {
+        
+        int result = _strcmp(user_prefix, entries[loc].prefix);
+        // user_prefix is greater than search prefix, search top half
+        if (result > 0) {
+            window_min = loc + 1;
+        }
+        // user_prefix is less than search prefix, search bottom half
+        else if (result < 0) {
+            window_max = loc - 1;
+        }
+        // found match, print correct location, unmap memory and exit with code 0
+        else if (result == 0) {
+            write(STDOUT_FILENO, entries[loc].location, sizeof(((entry_t*)0)->location)); // https://stackoverflow.com/a/3553314
+            write(STDOUT_FILENO, "\n", 1);
+            if (munmap(entries, size) < 0) write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+            return 0;
+        }
+        loc = (window_min + window_max) / 2;
+    }
+    // prefix not found
+    char* msg = "ERROR: Prefix not found.\n";
+    write(STDERR_FILENO, msg, _strlen(msg));
+    return -1;
 }
