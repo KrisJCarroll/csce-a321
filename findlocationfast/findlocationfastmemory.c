@@ -1,3 +1,12 @@
+/* findlocationfastmemory.c
+Author: Kristopher Carroll
+CSCE A321 - University of Alaska Anchorage
+Dr. Christoph Lauter
+
+This program searches for the user supplied North American phone prefix (first 6 digits)
+by mapping the appropriate prefix file (nanpa) into memory and performing binary search.
+*/
+
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
