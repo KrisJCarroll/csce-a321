@@ -1,3 +1,13 @@
+/* tail.c
+Author: Kristopher Carroll
+CSCE A321 - University of Alaska Anchorage
+Dr. Christoph Lauter
+
+This program implements the head function as it is used in the Linux command line using
+no calls to higher level C functions (other than strerror()) and is based primarily on
+the syscalls of read() and write().
+*/
+
 #include <string.h> // only used for strerror()
 #include <errno.h>
 #include <unistd.h>
