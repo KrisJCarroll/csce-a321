@@ -90,6 +90,14 @@ int parse_args(int argc, const char* argv[], int *fd) {
     return 0;
 }
 
+void fork_it(int* pid) {
+    if ((*pid = fork()) < 0) {
+        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
+        write(STDERR_FILENO, "\n", 1);
+        exit(1);
+    }
+}
+
 void dup_and_exec(int fd, int* pipe, char* cmd[]) {
     if(dup2(pipe[fd], fd) < 0) {
         write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
@@ -126,24 +134,16 @@ int main(int argc, const char* argv[]) {
     }
 
     // making first child
-    if ((pid1 = fork()) < 0) {
-        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
-        write(STDERR_FILENO, "\n", 1);
-        return 1;
-    }
+    fork_it(&pid1);
     // child 1
     char* cmd1[] = {"ls", 0};
     if (pid1 == 0) {
         // replace stdout with write end of pipe
         dup_and_exec(STDOUT_FILENO, pipe1, cmd1);
     }
-    waitpid(pid1, NULL, 0);
+    
     // making second child
-    if ((pid2 = fork()) < 0) {
-        write(STDERR_FILENO, strerror(errno), _strlen(strerror(errno)));
-        write(STDERR_FILENO, "\n", 1);
-        return 1;
-    }
+    fork_it(&pid2);
     // child 2
     char* cmd2[] = {"wc", 0};
     if (pid2 == 0) {
@@ -155,7 +155,8 @@ int main(int argc, const char* argv[]) {
     // parent process
     close(pipe1[0]);
     close(pipe1[1]);
-    wait(NULL);
+    waitpid(pid1, NULL, 0);
+    waitpid(pid2, NULL, 0);
 
     return 0;
 }
