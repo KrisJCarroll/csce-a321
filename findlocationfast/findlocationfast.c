@@ -1,3 +1,13 @@
+/* findlocationfast.c
+Author: Kristopher Carroll
+CSCE A321 - University of Alaska Anchorage
+Dr. Christoph Lauter
+
+This program searches for the location associated with a North American phone prefix (first 6 digits).
+This is done faster than the method provided by grep as it searches via binary search, reducing
+search time to O(log n).
+*/
+
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
