@@ -1,0 +1,67 @@
+Assignment 3 Q & A
+
+    Do you want me to maintain two linked lists and does it make it easier?
+        His implementation only maintains one - only keeps track of free blocks and not the allocated blocks
+        It's up to the user to give the blocks back when they're done with them
+
+    Check for overflow when allocating blocks (including when you add your header in)
+        unsigned int a, b;
+        unsigned int sum;
+
+        s = a + b; // may overflow, but s will become less than the operands if this occurs
+
+        if (s < a) { // or b 
+            /* overflow */
+        }
+        else {
+            /* everything is fine */
+        }
+
+        We will be tested on this - make sure you fail properly if overflow occurs!
+
+    Recommended not to use huge memory flags for mmap
+
+=======================================================================================================================
+
+Back to the lecture on filesystems...
+
+    FAT versions - different block size and addresses either in 12, 16, or 32 bits
+        FAT 12
+        FAT 16
+        FAT 32
+
+        FAT partitioning is ubiquitous and will never go away
+
+    Unix V7 File System
+        Filename on 14 bytes, 2 bytes for I-node number (block address on disk, more or less)
+            i-nodes can be direct to disk addresses or indirect, which addresses to additional i-node block addresses
+
+            stat will give you the inode for a file
+        
+    Do the exercises, they will not be on the midterm but you'll be a better human being.
+
+=======================================================================================================================
+
+Talking about Assignment 4
+
+    Where does a file system get implemented?
+        In the OS - must ensure disk can be formatted appropriately though
+        Takes a free block on the disk and establishes the filesystem
+        This implementation runs in kernel space
+            - which means we need to interface into the kernel, but this is a pain in the ass
+
+            so what do we do?
+
+    FUSE (Filesystem in User Space)
+        FUSE module in kernel space that redirects system calls that route to it back into user space process
+        The user space process actually does the work on the filesystem
+            - decode the kernel response and process it with FUSE userspace library
+        This FUSE system can be used to mount cloud-based drives as well
+    
+        Used regularly for all kinds of things, mounting various drives regardless of different base file systems
+
+    Write our own filesystem - more details of FUSE on Wednesday before returning to lecture
+
+    Lauter was born 30 miles from the Iron Curtain, and he says this ominously under his breath.
+            
+
