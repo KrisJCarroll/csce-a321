@@ -1,0 +1,100 @@
+Handling IO
+
+    Memory-mapped IO
+        Separate IO and memory space - two different addresses
+            IO ports in their own space
+        Memory-mapped IO
+            A single address space
+        Hybrid
+
+        Use a high bandwidth bus to communicate directly between the CPU and memory
+        However, don't use this absurdly expensive bandwidth bus for IO devices as they'll never utilize it to full potential
+
+    Direct Memory Access (DMA)
+
+        CPU programs the DMA controller ->
+        -> DMA controller requests transfer to memory ->
+        -> Data transferred from disk controller to memory ->
+        -> Disk controller acknowledges that the task has been performed to DMA controller ->
+        -> DMA controller interrupts the CPU to inform finished
+
+    Interrupts - many different types of interrupts needed for different types of devices
+        Instead, use an interrupt controller to interpret interrupts and correspond them to the appropriate devices
+    
+        Precise interrupts
+            - single program counter to be stored when an interrupt occurs
+            - this is horribly outdated
+
+        Imprecise interrupts
+            - designed for use with superscalar CPUs
+            - how do you determine which PC to store if uncertain who may have interrupted at any given time?
+                monitor which instructions have been executed in each part of the superscalar CPUs and whether or not they can 
+                be saved or need to be rerun
+            - however, these are usually abstracted away into a precise interrupt format to obfuscate design
+
+    Programmed I/O
+        IO programmed in software and performed in software byte for byte
+        No longer used very widely
+
+        Loop over the printer status register until it becomes available and then write to it
+        This causes the CPU to be completely consumed by trying to print out to the device until finished 
+            IO devices are MUCH MUCH MUCH MUCH slower than CPUs
+
+    Interrupt-Driven IO
+        Wait for the status register to be ready, then write the first byte
+        As soon as first byte is written, have IO device interrupt when finished processing that byte (schedule)
+        Then interrupt the CPU again to write the next byte
+
+    
+I/O Software Layers
+    From lowest level to highest level
+
+    Hardware
+    Interrupt Handlers
+    Device Drivers - responsible for interfacing with the device and the operating system
+        This was very difficult until there was standard driver interfaces with the OS
+        Otherwise, required intimate knowledge of the layout and functionality of the operating system to correctly match a
+            driver with the code in the OS
+    Device-independent operating system software - buffering, error reporting, allocating and releasing dedicated services
+        Buffering - different levels of buffering
+            unbuffered input - an issue if there's a mismatch between modem and CPU, there'll be lost data
+            buffered in user space - buffer some amount of data in user space, then lose anything beyond that
+            buffered in kernel, copy to user space - allow the kernel to generate the buffer so it can read in the
+                data quicker and then given to the user space afterwards
+            double buffered in kernel - one buffer to communicate with user space at a time, while the other buffer fills up
+                as soon as first buffer is drained by user space, start giving second buffer and continue filling first buffer
+        Buffering in networking
+            buffer typically can't be large enough or processed fast enough for handling the full transmission of a
+                network message
+            Lots of buffer to buffer transfers occur along the full network route, copies occurring at each buffer
+
+    User-level IO software - we skipped this shit
+
+No RAIDs
+
+CD-ROMs - function similarly to vinyl records, they're recorded in spirals because they were originally
+    intended for audio
+
+    contains pits and lands (with 0's and 1's)
+    shoot a laser through the disc while it spins, some layers will reflect and another will reflect at a different angle
+        bounce it back off a reflective layer and analyze the returning light with a photodetector
+        - light waves will either cancel out (pit) or not cancel out(lands) to make 0's and 1's respectively
+
+    split total disk into chunks
+        - preamble
+        - data
+        - error correction
+
+DVD - double layered CD pretty much
+
+Disk formatting 
+    skew - allows for consecutive reads on different cylinders while adjusting for the time required for physical
+        adjustment of the reading arm
+    interleaving - frequently interleaved by skipping sectors where the next consecutive data chunk is stored
+        - this comes from the fact that buffer space is limited and you're likely unable to read fast enough
+          for purely consecutive reads to occur
+        - so space them out so there's time to process the current read before the next sector for consecutive data arrives
+          at the reader head
+
+
+
