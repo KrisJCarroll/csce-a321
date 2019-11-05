@@ -1,0 +1,115 @@
+Welcome again to operating systems!
+
+Announcements:
+    - malloc() calloc() not working except with LibreOffice due to futex errors
+        - issues caused by threading occuring in LibreOffice
+        - competition will be run on a program that is not multi-threaded so these futex errors don't occur
+        - compute certain number of decimal places in pi and display that using malloc() calloc() etc.
+    - grades for HW2 before midterm on Wednesday?
+        - probably maybe yes/no
+    - midterms on Wednesday
+        - textbook, pencil, paper
+        - front/back note sheet
+
+Emulation - emulate hardware in software
+    - useful for running legacy software that was written for hardware that no longer exists or isn't easily
+        found anymore (end of the life cycle/post life cycle)
+    - qEmu - a very common emulator that encompasses a wide range of different hardware configurations
+        - author is a French guy - he does a lot of things, but he pointed out that Turing complete programming 
+            languages can run the emulations - thus JavaScript can be used to run an emulation within the browser
+    - emulation often used when writing hardware specific software before the hardware is completed
+        (beginning of the life cycle)
+    - obvious efficiency losses because multiple clock cycles required to simulate a single clock cycle on the 
+        emulated hardware
+    - Turing complete programming languages can all run an emulator
+
+Virtualization - something which allows you to virtualize a behavior mostly natively
+    - CPU and most of the hardware is still utilized natively (mostly)
+    - Guest operating system is compiled as a binary which executes instructions
+        - if these instructions can be executed in user space, they simply execute and perform their typical function
+        - if these instructions are kernel space instructions:
+            - host operating system sees the guest operating system as a process running in user space
+            - how do we get these kernel space instructions from the guest operating system to the host OS kernel space?
+                - send signals to inform the guest process that it is forbidden to use kernel space instructions
+                - now guest process will emulate the hardware for these kernel space instructions
+                - this keeps most operation at native speed, and emulation only required for these kernel space instructions
+            - modern architectures provide support for running these guest kernel instructions on the host kernel space
+    - originates back to the 70s with IBM's VM/370
+    - microkernels were the theoretical underpinning behind virtualization
+        - allows for paravirtualization, with the process running on a microkernel
+
+    - hypervisors
+        - type 1
+            - extremely small layer on top of bare hardware which allows for several OSs to run simultaneously
+            - used to essentially multiply the hardware virtually as many times as are needed for the individual OSs
+            - no guest/host OS in this case - all simultaneous OSs share rank over the hardware
+        - type 2 
+            - runs in user space on top of the host operating system
+            - does not interface directly with bare hardware
+            - these are the most commonly encountered types (when you run another OS in a virtual box on your system)
+            - host OS has full control over the hardware, guest OSs are at the host's mercy
+        
+        - hypervisors should score well in these dimensions:
+            - safety - full control of virtualized resources
+            - fidelity - behavior of program on virtual machine should be identical to program running on bare hardware
+            - efficiency - as much of code as possible should be run without intervention by hypervisor
+    
+    - memory virtualization - has unique considerations that must be considered
+        - hypervisor creates "shadow" page table that maps virtual pages used by VMs to actual pages
+        - discrepancies in host/guest OS views of memory space - how do we get around this?
+            - ballooning - small module loaded into the VM as a device driver that talks to hypervisor
+                * inflation - occurs when hypervisor reports memory scarcity on the host OS, inflation makes
+                    guest OS memory scarcity increase (less memory for guest OS)
+                * deflation - occurs when hypervisor reports plenty of memory available on host OS, deflation makes
+                    room for memory in guest OS
+        - reclaiming memory - another interesting problem here
+            - hypervisor allocates duplicated hardware to each OS running on the hypervisor
+                * thus, total memory of each OS on the hypervisor is more than the actual hardware memory available
+
+    - I/O virtualization 
+        - hypervisor responsible for converting virtual disk commands to the real disk
+        - networking - each virtual machine needs its own addressing
+            - each needs a unique MAC address, this requires simulation of the physical device individually for each
+                guest OS
+    
+    - Virtual appliances - essentially Docker
+        - shrink wrapped virtual machines used for product solutions
+            * tidy little package for virtual machines that don't need to concern themselves with their
+                environment or hardware considerations
+        - licensing is an issue here
+            * license per physical machine - but what if we virtualize it, can we install endless copies?
+            * these shrink wrapped machines have no way to indicate that they're installing software in multiple
+                virtual machines
+            * addressed through a variety of different methods to detect multiple installations
+
+The Cloud - an abstraction of delivering computing as a service and not hardware
+    - on-demand service - use it when you need it
+    - broadly accessible - accessible in a variety of different places and use cases
+    - resource pooling - pool everything into a data center and distribute n instances on m machines
+    - highly elastic
+    - measured service (pay-per-load/use) - important for billing as a service
+
+    Infrastructure as a Service (IaaS) - virtual machines, servers, storage, network
+    Platform as a Service (PaaS) - 
+    Software as a Service (SaaS) - 
+
+
+Questions about the midterm
+    - Lauter wrote it
+    - Virtual memory addresses/page faults - do the examples with two different tables
+        * we will not compute page size
+        * know the general flow and functions
+        * how many page faults per instructions
+        * what happens at the boundary of pages (1 byte in one page, more bytes on the next)
+            - alignment necessary for these page boundaries
+            HE SAID PIGEONHOLE PRINCIPLE (*shudders intensify*)
+    - file systems question largely philosophical question
+        * be able to think of things, not really know things
+        * if I open a file in POSIX-compliant OS, I keep holding FD but someone deletes the file (or overrites it)
+            I keep reading the same file contents - file only goes away completely when FD is closed
+            - maintain states (file is open,  can only delete when last access is done)
+                - but this causes an issue in networking because the state needs to be distributed across all the machines
+                    in the network
+                - if a file is read/write across multiple devices on the same network, if one writes will the others see
+                    the changes immediately?
+    
