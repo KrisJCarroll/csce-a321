@@ -1,0 +1,141 @@
+Debugging in GDB
+
+    Compile code with:
+    gcc -fPIC -Wall -g -O0 -c memory.c // -g is for debugging
+
+    Open GDB with a preload (LD_PRELOAD)
+        in GDB, type set environment LD_PRELOAD ./memory.so
+        set breakpoint with: b implementation.c:366
+        then type r to run
+    
+    He debugged using ls
+    Type bt to print stack at the breakpoint
+    type s to step
+    type c to continue
+    tb to set temporary breakpoint - just reached once and then goes away
+    can also make variables like:
+        p ptr
+        p (memory_block_t *) ptr
+        p *((memory_block_t *) ptr)
+
+    valgrind will replace malloc with its own implementation - can't use that effectively
+
+Thoughts on assignment 3
+
+    When we realloc -
+        create new block with new size using our own malloc()
+        copy minimum of new size or old size (whichever is smaller) into new block
+        free on the old block
+        return the pointer to the new block
+    
+    (size_t) 0 // cast 0 to properly fill the size of size_t with 0's
+
+===============================================================================================
+
+Disk Arm Scheduling Algorithms
+
+    Read/write time factors
+        - seek time - time to move the arm to the proper cylinder
+        - rotational delay - time for proper sector to rotate under the head (can't do much here except spin faster)
+        - actual data transfer time (can't really do much here)
+
+    So we can optimize on the seek time!
+
+    Shortest Seek First
+        - Prioritize a schedule of seeks based on which seek is closest to the current position
+    
+    Elevator Algorithm
+        - Shortest seek first but only in the same direction first
+
+Error Handling
+
+    Spare sectors per cylinder that are used for backup redundancy when a bad sector detected
+    When no more spare sectors, the OS will try to move bad sectors to open spare sectors on another cylinder
+    Bad sector detected by the OS
+        - usually through attempting to read/write and analyzing feedback
+        - may be a process of "going bad" so the OS can monitor a sector over time
+
+Stable Storage Algorithms
+
+    A system for providing high reliability for critical systems
+        - when a crash occurs, ensure in a state where either no write has occurred or the full write occurred
+
+    Two disks instead of one to reduce probability of concurrent errors
+        - now when a crash happens, it can switch between disks to revert to state prior to any write occurring
+            if necessary (write was occurring on one of the disks when crash occurred)
+        - affected disk will be marked as bad if crash occurs so the system knows which disk to get reliable
+            data from
+        
+================================================================================================
+
+Solid State Drives
+
+    No more rotating disks, now solid state - no physical motion needed for read/writes
+    How do we do this?
+
+    Two types of technologies:
+
+        Transistors - specialized so they don't have gate inputs
+            - contained special dotted silicon where you can store charges in the dots
+            - functions like capacitors that are well insulated to hold the charge stored
+            - the charge of these dots is used to store the bit-wise data
+        
+            Can have two levels of charge per capacitor (or 4 levels, up to 16 levels)
+                - multiple bits per cell
+                
+        Memristors - specialized resistors
+            - resistor physical resistance never changes, always the same Ohm level of resistance
+            - memristors "remember" whether a current travelled over the resistors or not
+            - Can change their resistance based on this memory to produce data representations
+
+    Writing is a problem with SSD technology due to the quantum effects that occur when dealing with charges
+    Must program them in blocks
+        - write access in blocks of 512 bytes to 2048 bytes (SD cards use 32 byte blocks)
+        - write only on erased blocks (fully free memory locations)
+            * this means that erase cycles need to be carefully maintained and functional
+        
+        So to change a byte in a block - read in the whole block, change the byte, erase the block
+            and write the whole block back
+        
+        number of writes due to the technology is LIMITED - will stop functioning after a while
+            previously limited to about a million writes
+
+            - this is managed by software that performs wear leveling to ensure wear is evened out
+                across all the blocks
+            
+            - but this is an issue because most data just sits there and doesn't move or change
+                while some blocks are written to VERY frequently
+                * last access times - get updated every time the file is read or written
+                    - the location for these last access times gets written a LOT
+
+            - wear leveling will try and write these hot blocks to different locations each time
+                these could get stored within areas where static data is stored
+                * but this causes write amplification because entire blocks need to be erased and 
+                    rewritten, even if only a single byte is changing
+        
+        how do we balance this?
+            - simulate rotating disks 
+                * but having arm movement algorithms is silly then
+            - implement file systems specifically designed for SSDs
+                * still early in development
+            - OS support for SSDs
+                * trim command - OS tells SSD that a block is now considered free
+                    firmware didn't previously know whether or not blocks were free so this provides an 
+                    avenue of dialogue between the SSD and the OS this lets the SSD have more freedom in 
+                    determining blocks for wear leveling
+
+                * aligned accesses - similar to aligning accesses in memory management
+                    inform the OS that the hardware is organized in blocks of specific sizes and request
+                    that writes fill the whole block or aren't written at all
+                
+                * experimental file systems 
+                    JFFS2 - journaled flash file system 2
+                    UBIFS - unsorted block image file system
+
+                    keep track of disk accesses via a log file
+                        - journal of all changes made since the beginning when all was free
+                        - then when enough data has been accumulated in the log to fill a full block, it can be written
+                        - read accesses are very difficult - now needs to parse every instance where a change occurred
+                            to determine what actually needs to read
+                            * but we can add caches so we can keep access speeds to be the same or faster than rotating disks
+                    
