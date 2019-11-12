@@ -176,6 +176,26 @@ typedef struct {
 memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
 memblock_t* free_mem_tail = NULL;
 
+void __insert_memblock(memblock_t* memblock) {
+    if (free_mem_head = NULL) free_mem_head = memblock;
+    memblock_t* current = free_mem_head;
+    memblock_t* prev = NULL;
+    while (current) {
+        // memblock is lower in address value than current, correct spot found
+        if (memblock < current) {
+          prev->next = memblock;
+          memblock->next = current;
+          return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    // hit the end of the list
+    prev->next = memblock;
+    free_mem_tail = memblock;
+    return;
+}
+
 size_t __round_size_word(size_t size) {
     size = size + HEADER_SIZE;
     if (size % WORD_SIZE != 0) size += size % WORD_SIZE;
