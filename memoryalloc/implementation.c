@@ -160,34 +160,66 @@ typedef struct {
     size_t size;
     memblock_t* next;
     memblock_t* prev;
+    void* mem_start;
 } memblock_t;
 
 typedef struct {
     size_t mem_size;
     void* mem_start;
 } usermem_t;
-
+#define BLOCK_SIZE sizeof(memblock_t);
 #define HEADER_SIZE sizeof(usermem_t) // save size of header_t for easy use in code
 #define WORD_SIZE (size_t)4
 #define PAGE_SIZE (size_t)4096
 
 memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
+memblock_t* free_mem_tail = NULL;
+
+size_t __round_size_word(size_t size) {
+    size = size + HEADER_SIZE;
+    if (size % WORD_SIZE != 0) size += size % WORD_SIZE;
+    return size;
+}
+
+size_t __round_size_page(size_t size) {
+    size = size + BLOCK_SIZE;
+    if (size % PAGE_SIZE != 0) size += size % PAGE_SIZE;
+    return size;
+}
 
 // map a new block of memory at least as large as size + header - page aligned to PAGE_SIZE
 memblock_t* __mmap_memblock(size_t size) {
-  
+    size = __round_size_page(size);
+    if (size < (size_t) 128000) size = (size_t) 128000; // minimum size of 128kB
+    memblock_t* new_memblock = (memblock_t*) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    // error checking mmap
+    if (new_memblock == MAP_FAILED) {
+        perror("Error: could not mmap new block.");
+        return NULL;
+    }
+    // update memblock_t header information for new memory block and add to linked list
+    new_memblock->original_size = size;
+    new_memblock->size = size;
+    new_memblock->next = NULL;
+    free_mem_tail->next = new_memblock;
+    free_mem_tail = new_memblock;
+
+    return new_memblock;
 }
 
 // search the list for an appropriately sized memblock or make a new one and return it
 memblock_t* __get_memblock(size_t size) {
     memblock_t* current = free_mem_head;
-    while (current && current->size <= (size + HEADER_SIZE)) {
+    size = __round_size_word(size);
+    while (current) {
+        if (current->size >= size) {
+            return current;
+        }
         current = current->next;
     }
-    if (current) return current; // found an appropriately sized block
 
     // no free block large enough, let's make a new one
-
+    return __mmap_memblock(size);
 }
 
 /* End of your helper functions */
