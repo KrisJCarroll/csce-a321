@@ -152,6 +152,9 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 
 */
 
+// header that will sit at the beginning of each block of memory to provide space for 
+// information about the size of the block of memory, a pointer to the memory, and 
+// where the next block of free memory is (if in the linked list of free memory)
 typedef struct {
     size_t length;
     void* mmap_start;
@@ -159,7 +162,9 @@ typedef struct {
     void* next;
 } header_t;
 
-header_t* free_memory = NULL;
+#define HEADER_SIZE sizeof(header_t) // save size of header_t for easy use in code
+
+header_t* free_memory = NULL; // global variable for start of free memory linked list
 
 /* End of your helper functions */
 
