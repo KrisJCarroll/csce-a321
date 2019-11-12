@@ -159,7 +159,6 @@ typedef struct {
     size_t original_size; // original size mmap'ed
     size_t size;
     memblock_t* next;
-    memblock_t* prev;
     void* mem_start;
 } memblock_t;
 
@@ -236,7 +235,7 @@ void __free_impl(void *);
 void *__malloc_impl(size_t size) {
 
   // requested to allocate 0 bytes
-  if (size == 0) return NULL;
+  if (size == (size_t) 0) return NULL;
 
   memblock_t* p = __get_memblock(size);
   if (p != NULL) {
