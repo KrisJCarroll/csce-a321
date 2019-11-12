@@ -52,6 +52,7 @@
 
 #include <stddef.h>
 #include <sys/mman.h>
+#include <stdio.h>
 
 /* Predefined helper functions */
 
@@ -158,7 +159,7 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 typedef struct {
     size_t original_size; // original size mmap'ed
     size_t size;
-    memblock_t* next;
+    void* next;
     void* mem_start;
 } memblock_t;
 
@@ -166,6 +167,7 @@ typedef struct {
     size_t mem_size;
     void* mem_start;
 } usermem_t;
+
 #define BLOCK_SIZE sizeof(memblock_t);
 #define HEADER_SIZE sizeof(usermem_t) // save size of header_t for easy use in code
 #define WORD_SIZE (size_t)4
