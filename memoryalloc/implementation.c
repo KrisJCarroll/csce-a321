@@ -157,8 +157,9 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 // where the next block of free memory is (if in the linked list of free memory)
 typedef struct {
     size_t original_size; // original size mmap'ed
-    void* next;
-    void* prev;
+    size_t size;
+    memblock_t* next;
+    memblock_t* prev;
 } memblock_t;
 
 typedef struct {
@@ -166,15 +167,27 @@ typedef struct {
     void* mem_start;
 } usermem_t;
 
-#define HEADER_SIZE sizeof(memblock_t) // save size of header_t for easy use in code
+#define HEADER_SIZE sizeof(usermem_t) // save size of header_t for easy use in code
 #define WORD_SIZE (size_t)4
 #define PAGE_SIZE (size_t)4096
 
 memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
 
+// map a new block of memory at least as large as size + header - page aligned to PAGE_SIZE
+memblock_t* __mmap_memblock(size_t size) {
+  
+}
+
 // search the list for an appropriately sized memblock or make a new one and return it
 memblock_t* __get_memblock(size_t size) {
-    memblock_t* memblock = NULL;
+    memblock_t* current = free_mem_head;
+    while (current && current->size <= (size + HEADER_SIZE)) {
+        current = current->next;
+    }
+    if (current) return current; // found an appropriately sized block
+
+    // no free block large enough, let's make a new one
+
 }
 
 /* End of your helper functions */
@@ -195,7 +208,8 @@ void *__malloc_impl(size_t size) {
 
   memblock_t* p = __get_memblock(size);
   if (p != NULL) {
-    return p->mmap_start; // return pointer to beginning of memory
+      // TODO: need to process memory block to create usermem_t
+      //        and give user usermem_t->mem_start
   } 
 
   return NULL;
