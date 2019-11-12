@@ -157,14 +157,14 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 // where the next block of free memory is (if in the linked list of free memory)
 typedef struct {
     size_t length;
-    void* mmap_start;
-    size_t mmap_size;
     void* next;
-} header_t;
+    size_t mmap_size;
+    void* mmap_start;
+} memblock_t;
 
-#define HEADER_SIZE sizeof(header_t) // save size of header_t for easy use in code
+#define HEADER_SIZE sizeof(memblock_t) // save size of header_t for easy use in code
 
-header_t* free_memory = NULL; // global variable for start of free memory linked list
+memblock_t* free_memory = NULL; // global variable for start of free memory linked list
 
 /* End of your helper functions */
 
@@ -173,8 +173,16 @@ header_t* free_memory = NULL; // global variable for start of free memory linked
 void __free_impl(void *);
 
 void *__malloc_impl(size_t size) {
-  /* STUB */
-  return NULL;
+  size_t block_size;
+
+  // requested to allocate 0 bytes
+  if (size == 0) return NULL;
+
+  block_size = size + HEADER_SIZE;
+  void* p = __get_mem_block(block_size);
+  if (p != NULL) {
+    return p + HEADER_SIZE; // return pointer to beginning of memory
+  } 
 }
 
 void *__calloc_impl(size_t nmemb, size_t size) {
