@@ -152,6 +152,14 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 
 */
 
+typedef struct {
+    size_t length;
+    void* mmap_start;
+    size_t mmap_size;
+    void* next;
+} header_t;
+
+header_t* free_memory = NULL;
 
 /* End of your helper functions */
 
