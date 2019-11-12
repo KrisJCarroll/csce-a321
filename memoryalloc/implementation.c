@@ -156,17 +156,29 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 // information about the size of the block of memory, a pointer to the memory, and 
 // where the next block of free memory is (if in the linked list of free memory)
 typedef struct {
-    size_t size;
+    size_t original_size; // original size mmap'ed
     void* next;
     void* prev;
-    void* mmap_start;
 } memblock_t;
 
-#define HEADER_SIZE sizeof(memblock_t) // save size of header_t for easy use in code
+typedef struct {
+    size_t mem_size;
+    void* mem_start;
+} usermem_t;
 
-memblock_t* free_memory = NULL; // global variable for start of free memory linked list
+#define HEADER_SIZE sizeof(memblock_t) // save size of header_t for easy use in code
+#define WORD_SIZE (size_t)4
+#define PAGE_SIZE (size_t)4096
+
+memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
+
+// search the list for an appropriately sized memblock or make a new one and return it
+memblock_t* __get_memblock(size_t size) {
+    memblock_t* memblock = NULL;
+}
 
 /* End of your helper functions */
+
 
 
 
@@ -177,15 +189,16 @@ memblock_t* free_memory = NULL; // global variable for start of free memory link
 void __free_impl(void *);
 
 void *__malloc_impl(size_t size) {
-  size_t block_size;
 
   // requested to allocate 0 bytes
   if (size == 0) return NULL;
 
-  memblock_t* p = __get_memblock(block_size);
+  memblock_t* p = __get_memblock(size);
   if (p != NULL) {
     return p->mmap_start; // return pointer to beginning of memory
   } 
+
+  return NULL;
 }
 
 void *__calloc_impl(size_t nmemb, size_t size) {
