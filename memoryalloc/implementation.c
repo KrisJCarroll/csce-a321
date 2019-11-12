@@ -6,8 +6,8 @@
 
     All rights reserved.
 
-    Contributors:  ...
-		   ...                 and
+    Contributors:
+		   Kristopher Carroll and
 		   Christoph Lauter
 
     See file memory.c on how to compile this code.
@@ -158,6 +158,7 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 typedef struct {
     size_t size;
     void* next;
+    void* prev;
     void* mmap_start;
 } memblock_t;
 
@@ -166,6 +167,10 @@ typedef struct {
 memblock_t* free_memory = NULL; // global variable for start of free memory linked list
 
 /* End of your helper functions */
+
+
+
+
 
 /* Start of the actual malloc/calloc/realloc/free functions */
 
@@ -177,10 +182,9 @@ void *__malloc_impl(size_t size) {
   // requested to allocate 0 bytes
   if (size == 0) return NULL;
 
-  block_size = size + HEADER_SIZE;
-  void* p = __get_mem_block(block_size);
+  memblock_t* p = __get_memblock(block_size);
   if (p != NULL) {
-    return p + HEADER_SIZE; // return pointer to beginning of memory
+    return p->mmap_start; // return pointer to beginning of memory
   } 
 }
 
