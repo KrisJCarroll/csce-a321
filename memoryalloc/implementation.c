@@ -171,7 +171,10 @@ typedef struct {
 memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
 
 void __insert_memblock(memblock_t* memblock) {
-    if (free_mem_head == NULL) free_mem_head = memblock;
+    if (free_mem_head == NULL) {
+      free_mem_head = memblock;
+      return;
+    }
     memblock_t* current = free_mem_head;
     memblock_t* prev = NULL;
     while (current) {
