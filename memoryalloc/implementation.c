@@ -168,10 +168,9 @@ typedef struct {
 #define PAGE_SIZE (size_t)4096
 
 memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
-memblock_t* free_mem_tail = NULL;
 
 void __insert_memblock(memblock_t* memblock) {
-    if (free_mem_head = NULL) free_mem_head = memblock;
+    if (free_mem_head == NULL) free_mem_head = memblock;
     memblock_t* current = free_mem_head;
     memblock_t* prev = NULL;
     while (current) {
@@ -186,15 +185,16 @@ void __insert_memblock(memblock_t* memblock) {
     }
     // hit the end of the list
     prev->next = memblock;
-    free_mem_tail = memblock;
     return;
 }
+
 // round sizes to be word aligned (4 bytes) for purposes of allocating memory to user
 size_t __round_size_word(size_t size) {
     size = size + HEADER_SIZE;
     if (size % WORD_SIZE != 0) size += size % WORD_SIZE;
     return size;
 }
+
 // round sizes to be page aligned for purposes of mmap'ing new memory
 size_t __round_size_page(size_t size) {
     size = size + HEADER_SIZE;
@@ -251,13 +251,18 @@ void *__malloc_impl(size_t size) {
   if (size == (size_t) 0) return NULL;
 
   memblock_t* p = __get_memblock(size);
+  size_t round_size = __round_size_word(size);
   if (p != NULL) {
-      // TODO: need to process memory block to create usermem_t
-      //        and give user usermem_t->mem_start
-      void* user_ptr = p->mem_start + (size_t)p->size;
-      user_ptr =
+      void* user_ptr = (void*)p + p->size; // go to the end
+      user_ptr -= round_size; // go back the rounded size + header size
+      ((memblock_t*)user_ptr)->size = round_size;
+      ((memblock_t*)user_ptr)->next = NULL;
+      p->size -= round_size; // update original memblock's size
+      user_ptr = ((memblock_t*)user_ptr)->mem_start;
+      return user_ptr;
   } 
-
+  // couldn't allocate memory, return NULL
+  perror("Error: malloc failed to allocate");
   return NULL;
 }
 
