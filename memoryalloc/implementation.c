@@ -157,19 +157,13 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 // information about the size of the block of memory, a pointer to the memory, and 
 // where the next block of free memory is (if in the linked list of free memory)
 typedef struct {
-    size_t original_size; // original size mmap'ed
     size_t size;
     void* next;
     void* mem_start;
 } memblock_t;
 
-typedef struct {
-    size_t mem_size;
-    void* mem_start;
-} usermem_t;
 
-#define BLOCK_SIZE sizeof(memblock_t);
-#define HEADER_SIZE sizeof(usermem_t) // save size of header_t for easy use in code
+#define HEADER_SIZE sizeof(memblock_t) // save size of header_t for easy use in code
 #define WORD_SIZE (size_t)4
 #define PAGE_SIZE (size_t)4096
 
@@ -203,7 +197,7 @@ size_t __round_size_word(size_t size) {
 }
 
 size_t __round_size_page(size_t size) {
-    size = size + BLOCK_SIZE;
+    size = size + HEADER_SIZE;
     if (size % PAGE_SIZE != 0) size += size % PAGE_SIZE;
     return size;
 }
@@ -261,6 +255,8 @@ void *__malloc_impl(size_t size) {
   if (p != NULL) {
       // TODO: need to process memory block to create usermem_t
       //        and give user usermem_t->mem_start
+      void* user_ptr = p->mem_start + (size_t)p->size;
+      user_ptr =
   } 
 
   return NULL;
