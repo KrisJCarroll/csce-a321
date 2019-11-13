@@ -53,6 +53,7 @@
 #include <stddef.h>
 #include <sys/mman.h>
 #include <stdio.h>
+#include <sys/errno.h>
 
 /* Predefined helper functions */
 
@@ -263,6 +264,7 @@ void *__malloc_impl(size_t size) {
   } 
   // couldn't allocate memory, return NULL
   perror("Error: malloc failed to allocate");
+  errno = ENOMEM;
   return NULL;
 }
 
