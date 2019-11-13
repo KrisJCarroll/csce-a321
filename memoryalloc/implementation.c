@@ -217,7 +217,8 @@ memblock_t* __mmap_memblock(size_t size) {
     memblock_t* new_memblock = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
     // error checking mmap
     if (new_memblock == MAP_FAILED) {
-        //perror("Error: could not mmap new block.");
+        char* msg = "Error: mmap failed.";
+        write(2, msg, strlen(msg));
         return NULL;
     }
     // update memblock_t header information for new memory block and add to linked list
