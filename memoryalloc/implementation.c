@@ -303,7 +303,7 @@ void *__realloc_impl(void *ptr, size_t size) {
 
 void __free_impl(void *ptr) {
   if (ptr == NULL) return;
-  memblock_t* memblock = ptr - HEADER_SIZE;
+  memblock_t* memblock = (memblock_t*) (ptr - HEADER_SIZE);
   __insert_memblock(memblock);
 }
 
