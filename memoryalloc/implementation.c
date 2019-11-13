@@ -174,7 +174,7 @@ typedef struct memblock memblock_t;
 
 static memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
 
-void __insert_memblock(memblock_t* memblock) {
+static void __insert_memblock(memblock_t* memblock) {
     if (free_mem_head == NULL) {
       free_mem_head = memblock;
       return;
@@ -197,21 +197,21 @@ void __insert_memblock(memblock_t* memblock) {
 }
 
 // round sizes to be word aligned (4 bytes) for purposes of allocating memory to user
-size_t __round_size_word(size_t size) {
+static size_t __round_size_word(size_t size) {
     size = size + HEADER_SIZE;
     if (size % WORD_SIZE != 0) size += size % WORD_SIZE;
     return size;
 }
 
 // round sizes to be page aligned for purposes of mmap'ing new memory
-size_t __round_size_page(size_t size) {
+static size_t __round_size_page(size_t size) {
     size = size + HEADER_SIZE;
     if (size % PAGE_SIZE != 0) size += size % PAGE_SIZE;
     return size;
 }
 
 // map a new block of memory at least as large as size + header - page aligned to PAGE_SIZE
-memblock_t* __mmap_memblock(size_t size) {
+static memblock_t* __mmap_memblock(size_t size) {
     size = __round_size_page(size);
     if (size < MIN_MMAP_SIZE) size = MIN_MMAP_SIZE; // minimum size of 32 MB
     memblock_t* new_memblock = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
@@ -229,7 +229,7 @@ memblock_t* __mmap_memblock(size_t size) {
 }
 
 // search the list for an appropriately sized memblock or make a new one and return it
-memblock_t* __get_memblock(size_t size) {
+static memblock_t* __get_memblock(size_t size) {
     memblock_t* current = free_mem_head;
     size = __round_size_word(size);
     while (current) {
