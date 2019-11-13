@@ -295,7 +295,9 @@ void *__calloc_impl(size_t nmemb, size_t size) {
 }
 
 void *__realloc_impl(void *ptr, size_t size) {
-  /* STUB */
+  void* dest;
+  void* src;
+  __memcpy(dest, src, 0);
   return NULL;  
 }
 
