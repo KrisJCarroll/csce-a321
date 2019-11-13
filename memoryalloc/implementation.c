@@ -254,6 +254,9 @@ void *__malloc_impl(size_t size) {
   memblock_t* p = __get_memblock(size);
   size_t round_size = __round_size_word(size);
   if (p != NULL) {
+      // TODO: check to see if remaining size in memblock after allocation is at least
+      //       HEADER_SIZE + WORD_SIZE in length, otherwise allocate the entire block
+      //       and remove it from the linked list
       void* user_ptr = (void*)p + p->size; // go to the end
       user_ptr -= round_size; // go back the rounded size + header size
       ((memblock_t*)user_ptr)->size = round_size;
@@ -269,7 +272,20 @@ void *__malloc_impl(size_t size) {
 }
 
 void *__calloc_impl(size_t nmemb, size_t size) {
-  /* STUB */
+  size_t total;
+  memblock_t* user_ptr;
+  // check for overflow
+  if (!__try_size_t_multiply(&total, nmemb, size)) return NULL;
+
+  // no overflow, get memory with malloc and if successful, write 0's across all bytes
+  user_ptr = __malloc_impl(total);
+  if (user_ptr) {
+    __memset(user_ptr, 0, total);
+  }
+
+  // didn't succeed in allocating memory from malloc, set errno and return NULL
+  errno = ENOMEM;
+  perror("Error: calloc failed to allocate");
   return NULL;  
 }
 
