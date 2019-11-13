@@ -189,13 +189,13 @@ void __insert_memblock(memblock_t* memblock) {
     free_mem_tail = memblock;
     return;
 }
-
+// round sizes to be word aligned (4 bytes) for purposes of allocating memory to user
 size_t __round_size_word(size_t size) {
     size = size + HEADER_SIZE;
     if (size % WORD_SIZE != 0) size += size % WORD_SIZE;
     return size;
 }
-
+// round sizes to be page aligned for purposes of mmap'ing new memory
 size_t __round_size_page(size_t size) {
     size = size + HEADER_SIZE;
     if (size % PAGE_SIZE != 0) size += size % PAGE_SIZE;
