@@ -207,7 +207,7 @@ size_t __round_size_page(size_t size) {
 memblock_t* __mmap_memblock(size_t size) {
     size = __round_size_page(size);
     if (size < (size_t) 128000) size = (size_t) 128000; // minimum size of 128kB
-    memblock_t* new_memblock = (memblock_t*) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    memblock_t* new_memblock = (memblock_t*) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     // error checking mmap
     if (new_memblock == MAP_FAILED) {
         perror("Error: could not mmap new block.");
@@ -247,7 +247,7 @@ memblock_t* __get_memblock(size_t size) {
 void __free_impl(void *);
 
 void *__malloc_impl(size_t size) {
-  
+
   // requested to allocate 0 bytes
   if (size == (size_t) 0) return NULL;
 
