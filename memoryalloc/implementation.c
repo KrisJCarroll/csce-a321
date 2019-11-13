@@ -55,6 +55,7 @@
 #include <stdio.h>
 #include <sys/errno.h>
 #include <string.h>
+#include <unistd.h>
 
 /* Predefined helper functions */
 
@@ -216,7 +217,7 @@ memblock_t* __mmap_memblock(size_t size) {
     memblock_t* new_memblock = (memblock_t*) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
     // error checking mmap
     if (new_memblock == MAP_FAILED) {
-        perror("Error: could not mmap new block.");
+        //perror("Error: could not mmap new block.");
         return NULL;
     }
     // update memblock_t header information for new memory block and add to linked list
@@ -254,7 +255,7 @@ memblock_t* __get_memblock(size_t size) {
 void __free_impl(void *);
 
 void *__malloc_impl(size_t size) {
-
+  write(2, "malloc", 6);
   // requested to allocate 0 bytes
   if (size == (size_t) 0) return NULL;
 
@@ -273,7 +274,8 @@ void *__malloc_impl(size_t size) {
       return user_ptr;
   } 
   // couldn't allocate memory, return NULL
-  perror("Error: malloc failed to allocate");
+  //perror("Error: malloc failed to allocate");
+  write(2, "malloc", 6);
   errno = ENOMEM;
   return NULL;
 }
