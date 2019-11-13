@@ -54,6 +54,7 @@
 #include <sys/mman.h>
 #include <stdio.h>
 #include <sys/errno.h>
+#include <string.h>
 
 /* Predefined helper functions */
 
@@ -235,6 +236,7 @@ memblock_t* __get_memblock(size_t size) {
     }
 
     // no free block large enough, let's make a new one
+    printf("Trying to map a new block of size %d", size);
     return __mmap_memblock(size);
 }
 
