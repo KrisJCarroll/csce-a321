@@ -212,21 +212,26 @@ static size_t __round_size_page(size_t size) {
 }
 
 // map a new block of memory at least as large as size + header - page aligned to PAGE_SIZE
-static memblock_t* __mmap_memblock(size_t size) {
+static void __mmap_memblock(size_t size) {
     size = __round_size_page(size);
     if (size < MIN_MMAP_SIZE) size = MIN_MMAP_SIZE; // minimum size of 32 MB
-    memblock_t* new_memblock = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+    void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     // error checking mmap
-    if (new_memblock == MAP_FAILED) {
+    if (ptr == MAP_FAILED) {
         char* msg = "Error: mmap failed.\n";
         write(2, msg, strlen(msg));
-        return NULL;
+        return;
     }
+
     // update memblock_t header information for new memory block and add to linked list
+    memblock_t* new_memblock = (memblock_t*) ptr;
     new_memblock->size = size;
+    new_memblock->mem_start = ptr;
+    new_memblock->mem_size = size;
+    new_memblock->next = NULL;
     __insert_memblock(new_memblock);
 
-    return new_memblock;
+    return;
 }
 
 // search the list for an appropriately sized memblock or make a new one and return it
@@ -241,8 +246,20 @@ static memblock_t* __get_memblock(size_t size) {
     }
 
     // no free block large enough, let's make a new one
-    //printf("Trying to map a new block of size %lu", size);
-    return __mmap_memblock(size);
+    __mmap_memblock(size);
+    // and check again
+    current = free_mem_head;
+    while (current) {
+        if (current->size >= size) {
+            return current;
+        }
+        current = current->next;
+    }
+
+    // we failed, return null
+    char* msg = "Error: could not get memblock\n";
+    write(2, msg, strlen(msg));
+    return NULL;
 }
 
 /* End of your helper functions */
