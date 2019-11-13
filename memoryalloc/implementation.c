@@ -160,9 +160,10 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 // information about the size of the block of memory, a pointer to the memory, and 
 // where the next block of free memory is (if in the linked list of free memory)
 struct memblock {
-    size_t size;
     struct memblock* next;
+    size_t size;
     void* mem_start;
+    size_t mem_size;
 };
 typedef struct memblock memblock_t;
 
