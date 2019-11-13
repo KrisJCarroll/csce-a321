@@ -213,7 +213,6 @@ memblock_t* __mmap_memblock(size_t size) {
         return NULL;
     }
     // update memblock_t header information for new memory block and add to linked list
-    new_memblock->original_size = size;
     new_memblock->size = size;
     __insert_memblock(new_memblock);
 
