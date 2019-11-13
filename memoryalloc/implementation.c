@@ -214,7 +214,7 @@ size_t __round_size_page(size_t size) {
 memblock_t* __mmap_memblock(size_t size) {
     size = __round_size_page(size);
     if (size < MIN_MMAP_SIZE) size = MIN_MMAP_SIZE; // minimum size of 32 MB
-    memblock_t* new_memblock = (memblock_t*) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
+    memblock_t* new_memblock = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
     // error checking mmap
     if (new_memblock == MAP_FAILED) {
         //perror("Error: could not mmap new block.");
@@ -255,13 +255,13 @@ memblock_t* __get_memblock(size_t size) {
 void __free_impl(void *);
 
 void *__malloc_impl(size_t size) {
-  write(2, "malloc", 6);
+
   // requested to allocate 0 bytes
   if (size == (size_t) 0) return NULL;
 
   memblock_t* p = __get_memblock(size);
   size_t round_size = __round_size_word(size);
-  if (p != NULL) {
+  if (p) {
       // TODO: check to see if remaining size in memblock after allocation is at least
       //       HEADER_SIZE + WORD_SIZE in length, otherwise allocate the entire block
       //       and remove it from the linked list
