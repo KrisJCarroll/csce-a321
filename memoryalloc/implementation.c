@@ -182,7 +182,7 @@ static void __insert_memblock(memblock_t* memblock) {
     }
     memblock_t* current = free_mem_head;
     memblock_t* prev = NULL;
-    while (current) {
+    while (current != NULL) {
         // memblock is lower in address value than current, correct spot found
         if (memblock < current) {
           prev->next = memblock;
