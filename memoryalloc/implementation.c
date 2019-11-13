@@ -236,7 +236,7 @@ memblock_t* __get_memblock(size_t size) {
     }
 
     // no free block large enough, let's make a new one
-    printf("Trying to map a new block of size %lu", size);
+    //printf("Trying to map a new block of size %lu", size);
     return __mmap_memblock(size);
 }
 
