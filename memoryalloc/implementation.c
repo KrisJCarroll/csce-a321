@@ -217,7 +217,7 @@ memblock_t* __mmap_memblock(size_t size) {
     memblock_t* new_memblock = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
     // error checking mmap
     if (new_memblock == MAP_FAILED) {
-        char* msg = "Error: mmap failed.";
+        char* msg = "Error: mmap failed.\n";
         write(2, msg, strlen(msg));
         return NULL;
     }
@@ -275,8 +275,8 @@ void *__malloc_impl(size_t size) {
       return user_ptr;
   } 
   // couldn't allocate memory, return NULL
-  //perror("Error: malloc failed to allocate");
-  write(2, "malloc", 6);
+  char* msg = "Error: malloc failed to allocate\n";
+  write(2, msg, strlen(msg));
   errno = ENOMEM;
   return NULL;
 }
