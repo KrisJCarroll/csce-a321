@@ -277,7 +277,9 @@ void *__realloc_impl(void *ptr, size_t size) {
 }
 
 void __free_impl(void *ptr) {
-  /* STUB */
+  if (ptr == NULL) return;
+  memblock_t* memblock = ptr - HEADER_SIZE;
+  __insert_memblock(memblock);
 }
 
 /* End of the actual malloc/calloc/realloc/free functions */
