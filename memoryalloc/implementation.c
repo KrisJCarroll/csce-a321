@@ -247,7 +247,7 @@ memblock_t* __get_memblock(size_t size) {
 void __free_impl(void *);
 
 void *__malloc_impl(size_t size) {
-
+  
   // requested to allocate 0 bytes
   if (size == (size_t) 0) return NULL;
 
