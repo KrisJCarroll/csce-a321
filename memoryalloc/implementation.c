@@ -210,7 +210,7 @@ size_t __round_size_page(size_t size) {
 // map a new block of memory at least as large as size + header - page aligned to PAGE_SIZE
 memblock_t* __mmap_memblock(size_t size) {
     size = __round_size_page(size);
-    if (size < (size_t) 128000) size = (size_t) 128000; // minimum size of 128kB
+    //if (size < (size_t) 128000) size = (size_t) 128000; // minimum size of 128kB
     memblock_t* new_memblock = (memblock_t*) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     // error checking mmap
     if (new_memblock == MAP_FAILED) {
@@ -236,7 +236,7 @@ memblock_t* __get_memblock(size_t size) {
     }
 
     // no free block large enough, let's make a new one
-    printf("Trying to map a new block of size %d", size);
+    printf("Trying to map a new block of size %lu", size);
     return __mmap_memblock(size);
 }
 
