@@ -158,18 +158,20 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 // header that will sit at the beginning of each block of memory to provide space for 
 // information about the size of the block of memory, a pointer to the memory, and 
 // where the next block of free memory is (if in the linked list of free memory)
-typedef struct {
+struct memblock {
     size_t size;
-    void* next;
+    struct memblock* next;
     void* mem_start;
-} memblock_t;
+};
+typedef struct memblock memblock_t;
 
 
-#define HEADER_SIZE sizeof(memblock_t) // save size of header_t for easy use in code
-#define WORD_SIZE (size_t)4
-#define PAGE_SIZE (size_t)4096
+#define HEADER_SIZE (sizeof(memblock_t)) // save size of header_t for easy use in code
+#define WORD_SIZE ((size_t) 4)
+#define PAGE_SIZE ((size_t) 4096)
+#define MIN_MMAP_SIZE ((size_t) 33554432) // 32 MB minimum for mmap
 
-memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
+static memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
 
 void __insert_memblock(memblock_t* memblock) {
     if (free_mem_head == NULL) {
@@ -210,7 +212,7 @@ size_t __round_size_page(size_t size) {
 // map a new block of memory at least as large as size + header - page aligned to PAGE_SIZE
 memblock_t* __mmap_memblock(size_t size) {
     size = __round_size_page(size);
-    //if (size < (size_t) 128000) size = (size_t) 128000; // minimum size of 128kB
+    if (size < MIN_MMAP_SIZE) size = MIN_MMAP_SIZE; // minimum size of 32 MB
     memblock_t* new_memblock = (memblock_t*) mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, 0, 0);
     // error checking mmap
     if (new_memblock == MAP_FAILED) {
