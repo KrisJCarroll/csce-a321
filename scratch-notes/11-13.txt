@@ -1,0 +1,92 @@
+Notes on Assignment 4
+ 
+// to mount the filesystem
+./myfs --backupfile=./test.myfs ./fuse-mnt
+
+what are all the arguments used throughout the implementation?
+
+fsptr - points to the beginning of bytes in memory that is size fssize
+    chunk of memory comes from an mmap probably
+    two possibilities to find that chunk of memory
+        first time - all 0's the first time its mounted
+        next time (after unmounting and mounting again) - if you used the backup file and wrote something
+            it appears again when remounting
+        if you need to store anything in a global manner - implement a magic number mechanism
+        no global variables in the code - it won't be attached to the filesystem anyway
+            - so we should store global variables for the filesystem at the beginning of the memory zone
+            - so create the global header the first time the filesystem is mounted
+                check whether the first couple bytes contain a magic number
+                if magic number is correct, can safely find global variables
+                if not magic number, initialize the header region
+errnoptr - used to change the errno if a filesystem function fails
+    all of these filesystem functions should return 0 on success
+    (check the notes on the assignment for clarification on what errno and the function should return)
+
+
+Thoughts on how to start thinking about the assignment
+    - we have memory of a certain size, initialized with a header
+    - divide up this memory similarly to allocation implementation, splitting up the memory between used/unused
+    - need to process freeing and allocating the memory
+    - file system is basically a tree - directories with directories/files within them
+        - but pointers are going to change every time the file system is mounted/unmounted
+        - cannot use plain pointers, use offsets from beginning of filesystem!
+
+Correct package is libfuse-dev - install that on the system
+
+paths are not documented - the only thing guaranteed is the first character is a slash
+    - need to follow them to find the thing specified
+    - if anything along the way can't be found, fail and set errno
+    - if the thing is found, fill out information in stbuf 
+
+readdir - tries to find directory indicated by path, returns list of files and subdirectories (names)
+    returns via char*** namesptr
+    - must allocate sufficient space for array of arrays
+    - doesn't return anything if just . and .. in the directory
+    - if it does allocate something (because it found them), needs to indicate how many items are found
+
+mknod - creates a file of size 0
+    - fuse guarantees this is only called for regular files
+    - will need the time of the moment the file was created
+
+unlink - used for deletion of regular files
+
+rmdir - deletes directory if it is empty (nothing but . and ..)
+    - must fail if subdirectory is not empty
+    - must fail if someone is trying to delete root
+    - if succeed, directory goes away and space is freed
+
+mkdir - creates directory
+    - if directory already exists, fail
+    - if file of same name exists, fail
+
+rename - most difficult of all function calls
+    - renames a file or a diretory
+    - also can move the file/directory at the same time
+    - need to update all mappings appropriate
+    - existing thing needs to move
+
+truncate - truncates file to smaller or bigger size
+    - if directory, fail
+    - otherwise resize appropriately (and free when necessary)
+
+open - checks if the file can be opened
+    - if doesn't exist, fails
+    - otherwise checks to see if can open and reports results
+
+read - reads from a file indicated by path
+    - read number of bytes given by size starting at offset given by offset
+    - put those bytes in char* buf 
+    - only reads as many bytes as possible if asked to read more than what exists
+    - returns the number of bytes read
+
+write - writes to a file indicated by path
+    - do the write stuff
+
+utimens - changes access and modification times of the file or directory indicated by path
+
+statfs - gives information about the whole filesystem
+    - block size
+    - total number of blocks
+    - free number of blocks
+    - maximum file/directory name size
+
