@@ -1,0 +1,64 @@
+More thoughts on assignment 4
+
+    - Need a function that starts at the beginning of the filesystem and takes a path
+        * passes the path, follows the data structure to the end
+        * sometimes the last element in path is not yet there (when creating a file/directory)
+            - take the information if doing getaddr
+        * path should be null terminated
+    
+    - get_addr is one of the most basic functions to implement
+    - readdir is another basic function
+    - but you won't be able to go beyond the root without making new things
+
+================================================================================================================
+
+Deadlocks
+
+    - Preemptable and Nonpreemptable Resources
+        * Sequence of events required to use a resource:
+            1) request resource
+            2) 
+
+    - Need to use semaphores to protect shared resources that can only be used by one process at a terminated
+
+    - Deadlocks occur when there's several resources that need to be protected and used at the same time
+        - Example: writing a DVD - need DVD reader and DVD writer at the same time
+        - As long as all processes use the same resources at the same time in the same manner, no deadlock
+            * deadlocks occur when the resources are secured differently with different processes 
+                one process reserves resource 1 first
+                other process reserves resource 2 first
+                if both of these processes do this at the same time, neither can continue
+    
+    - Deadlock formal definition
+        * a set of processses is deadlocked if each process in the set is waiting for an event that only another process
+            in the set can cause
+    
+    - Can model deadlocks with graphs
+        * a deadlock occurs on a graph where a cycle occurs
+        * can be determined by an occurs
+    
+    - Strategies for dealing with deadlocks
+        * ignore the problem - don't deal with it
+        * detect the problem and recover - let them occur and detect them, then take action
+            - detect a circle in the wait and request graph
+        * dynamic avoidance - careful resource allocation
+        * prevention - structurally negating one of the four required conditions
+
+    - Recovery from deadlock
+        - preemption
+        - rollback
+            - move everything back to the last state that we were not deadlocked and hope scheduling fixes the deadlock
+                when everything tries again
+            - not always a possibility depending on the process/structure
+        - killing processes - if a process gets in deadlock, it gets killed
+            * can be started again and try again
+            * linux will kill any process that causes linux to get to a point where it doesn't know what to do
+                - eg. excessive resource usage
+        
+    - Deadlock avoidance
+        - processes can report their resource needs
+        - OS can plot process resource trajectories to determine pathways for processes to share
+
+    - attacking the circular wait condition
+        - order resources across all processes
+
