@@ -1,0 +1,7 @@
+Multimedia Technologies
+====================================================================================
+Many layers of data that need to be coordinated together in order to perform functionally
+    * video
+    * audio - maybe multiple different types of audio (different languages, different channels)
+    * subtitles - different languages, different layers here as well
+    
