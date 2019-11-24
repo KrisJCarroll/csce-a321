@@ -197,6 +197,8 @@ static void __insert_memblock(memblock_t* memblock) {
         current = current->next;
     }
     // hit the end of the list
+    char* msg = "Inserted before.\n";
+    write(2, msg, strlen(msg));
     prev->next = memblock;
     return;
 }
