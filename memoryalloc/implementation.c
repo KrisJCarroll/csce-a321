@@ -332,7 +332,7 @@ void *__malloc_impl(size_t size) {
   // couldn't allocate memory, return NULL
   char* msg = "Error: malloc failed to allocate\n";
   write(2, msg, strlen(msg));
-  //errno = ENOMEM;
+  errno = ENOMEM;
   return NULL;
 }
 
@@ -356,9 +356,26 @@ void *__calloc_impl(size_t nmemb, size_t size) {
 
 void *__realloc_impl(void *ptr, size_t size) {
   void* dest = NULL;
-  void* src = NULL;
-  __memcpy(dest, src, 0);
-  return NULL;  
+
+  // they're using it to malloc
+  if (ptr == NULL) return __malloc_impl(size); 
+
+  // they're using it to free
+  if (size == 0) {
+    __free_impl(ptr);
+    return NULL;
+  }
+
+  // they're actually resizing
+  dest = __malloc_impl(size);
+  if (!dest) return NULL;
+  // need to free up the old memory and give them the new memory
+  memblock_t* return_memblock = (memblock_t*) (ptr - HEADER_SIZE);
+  size_t copy_size = return_memblock->size;
+  if (size < copy_size) copy_size = size;
+  __memcpy(dest, ptr, copy_size);
+  __free_impl(ptr);
+  return dest;  
 }
 
 void __free_impl(void *ptr) {
