@@ -215,7 +215,6 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->next = next->next; 
          ptr->size = ptr->size + next->size;
          coalesced = 1;
-         __coalesce_memblock((memblock_t*)ptr->mem_start);
          //char* msg = "Coalesced.\n";
          //write(2, msg, strlen(msg));
          next = ptr->next;
@@ -234,7 +233,6 @@ static void __coalesce_memblock(memblock_t* ptr) {
              next->next = temp->next;
              next->size = next->size + temp->size;
              coalesced = 1;
-             __coalesce_memblock((memblock_t*)next->mem_start);
              __munmap_memblocks();
            }
          }
