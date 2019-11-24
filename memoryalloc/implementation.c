@@ -346,6 +346,7 @@ void *__calloc_impl(size_t nmemb, size_t size) {
   user_ptr = __malloc_impl(total);
   if (user_ptr != NULL) {
     __memset(user_ptr, 0, total);
+    return user_ptr;
   }
 
   // didn't succeed in allocating memory from malloc, set errno and return NULL
