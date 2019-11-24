@@ -267,6 +267,8 @@ static void __insert_memblock(memblock_t* memblock) {
           // insert between prev and current
           prev->next = memblock;
           memblock->next = current;
+          char* msg = "Inserting between prev and current";
+          write(2, msg, strlen(msg));
           __coalesce_memblock(memblock);
           __coalesce_memblock(prev);
           return;
@@ -313,7 +315,7 @@ static void __mmap_memblock(size_t size) {
     ((memblock_t*)ptr)->mem_size = size;
     ((memblock_t*)ptr)->next = NULL;
     __insert_memblock((memblock_t*)ptr);
-    char* msg = "\tMMAP'ed new block.\t";
+    char* msg = "\tMMAP'ed new block.\n";
     write(2, msg, strlen(msg));
     return;
 }
