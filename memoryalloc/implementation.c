@@ -320,11 +320,38 @@ static void __mmap_memblock(size_t size) {
 // search the list for an appropriately sized memblock or make a new one and return it
 static memblock_t* __get_memblock(size_t size) {
     memblock_t* current = free_mem_head;
-    size = __round_size_word(size);
+    size = __round_size_word(size); // handles addition of HEADER_SIZE already
+    memblock_t* prev = NULL;
     while (current) {
+        // found one that will work
         if (current->size >= size) {
-            return current;
+           // not going to be enough left over to be useful, return the whole block
+           if (current->size - size <= __round_size_page(HEADER_SIZE)) {
+              // was the head, set it to NULL
+              if (prev == NULL) {
+                 free_mem_head = NULL;
+                 current->next = NULL;
+                 return current;
+              }
+              // wasn't the head, update prev approprtiately
+              prev->next = current->next;
+              current->next = NULL;
+              return current;
+           } 
+           
+           // we have enough, let's chop it up and give them the part they need
+           void* user_ptr = ((void*) current) + current->size; // go to the end of block
+           user_ptr = user_ptr - size; // go back the size of header and size from user
+           current->size = current->size - size; // adjust p size accordingly
+
+           // update header info for user memory
+           ((memblock_t*)user_ptr)->size = size; 
+           ((memblock_t*)user_ptr)->mem_size = current->mem_size;
+           ((memblock_t*)user_ptr)->mem_start = current->mem_start;
+
+           return (memblock_t*) user_ptr;
         }
+        prev = current;
         current = current->next;
     }
 
@@ -365,25 +392,7 @@ void *__malloc_impl(size_t size) {
   size_t user_size = __round_size_word(size); // get the size we're going to take from it
   
   if (p) {
-      // TODO: check to see if remaining size in memblock after allocation is at least
-      //       HEADER_SIZE + WORD_SIZE in length, otherwise allocate the entire block
-      //       and remove it from the linked list
-      size_t p_size = p->size;
-      if (p_size - (user_size + HEADER_SIZE) < __round_size_page(HEADER_SIZE)) {
-          char* msg = "We need to remove the block from free list\n";
-          write(2, msg, strlen(msg));
-      }
-      void* user_ptr = ((void*) p) + p_size; // go to the end of block
-      user_ptr = user_ptr - (HEADER_SIZE + user_size); // go back the size of header and size from user
-      p->size = p_size - (HEADER_SIZE + user_size); // adjust p size accordingly
-
-      // update header info for user memory
-      ((memblock_t*)user_ptr)->size = user_size + HEADER_SIZE; 
-      ((memblock_t*)user_ptr)->mem_size = p->mem_size;
-      ((memblock_t*)user_ptr)->mem_start = p->mem_start;
-
-      // point at where the memory starts and return to user
-      user_ptr = user_ptr + HEADER_SIZE;
+      void* user_ptr = ((void*) p) + HEADER_SIZE;
       return user_ptr;
   } 
   // couldn't allocate memory, return NULL
