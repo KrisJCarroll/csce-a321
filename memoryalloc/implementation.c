@@ -257,6 +257,7 @@ static void __insert_memblock(memblock_t* memblock) {
             memblock->next = free_mem_head;
             free_mem_head = memblock;
             __coalesce_memblock(memblock);
+            return;
           }
           // insert between prev and current
           prev->next = memblock;
@@ -268,12 +269,9 @@ static void __insert_memblock(memblock_t* memblock) {
         prev = current;
         current = current->next;
     }
-    if (prev) {
-      prev->next = memblock;
-      __coalesce_memblock(prev);
-    }
-    free_mem_head = memblock;
-    __coalesce_memblock(memblock);
+    // hit the end of the list, add to prev and coalesce on prev
+    prev->next = memblock;
+    __coalesce_memblock(prev);
     return;
 }
 
