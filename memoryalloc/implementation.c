@@ -270,6 +270,8 @@ static memblock_t* __get_memblock(size_t size) {
     }
 
     // no free block large enough, let's make a new one
+    char* msg = "MMAP'ing new memblock\n";
+    write(2, msg, strlen(msg));
     __mmap_memblock(size);
     // and check again
     current = free_mem_head;
