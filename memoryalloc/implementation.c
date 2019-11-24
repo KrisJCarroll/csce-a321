@@ -367,7 +367,7 @@ static memblock_t* __get_memblock(size_t size) {
            // we have enough, let's chop it up and give them the part they need
            void* user_ptr = ((void*) current) + current->size; // go to the end of block
            user_ptr = user_ptr - size; // go back the size of header and size from user
-           current->size = current->size - size; // adjust p size accordingly
+           current->size = (current->size) - size; // adjust p size accordingly
 
            // update header info for user memory
            ((memblock_t*)user_ptr)->size = size; 
