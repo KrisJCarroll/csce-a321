@@ -182,8 +182,8 @@ static void __munmap_memblocks() {
   while (current) {
     if (current->size == current->mem_size && current->mem_start == (void*) current) {
       memblock_t* next = current->next;
-      char* msg = "\tMUNMAPPING!!!!";
-      write(2, msg, strlen(msg));
+      //char* msg = "\tMUNMAPPING!!!!";
+      //write(2, msg, strlen(msg));
       int status = munmap(current->mem_start, current->mem_size);
       if (!status){
         char* msg = "ERROR: Munmap failed.";
@@ -211,8 +211,8 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->next = next->next; 
          ptr->size = ptr->size + next->size;
          __coalesce_memblock((memblock_t*)ptr->mem_start);
-         char* msg = "Coalesced.\n";
-         write(2, msg, strlen(msg));
+         //char* msg = "Coalesced.\n";
+         //write(2, msg, strlen(msg));
          __munmap_memblocks();
          next = ptr->next;
          if (next == NULL || next->next == NULL) return;
