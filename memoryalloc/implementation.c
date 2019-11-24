@@ -160,10 +160,10 @@ static int __try_size_t_multiply(size_t *c, size_t a, size_t b) {
 // information about the size of the block of memory, a pointer to the memory, and 
 // where the next block of free memory is (if in the linked list of free memory)
 struct memblock {
-    struct memblock* next;
-    size_t size;
-    void* mem_start;
-    size_t mem_size;
+    size_t size; // size of block currently
+    struct memblock* next; // next free memblock (if this block is in the free list)
+    size_t mem_size; // original size of mmap
+    void* mem_start; // where the original mmap started - to determine coalescing
 };
 typedef struct memblock memblock_t;
 
@@ -177,6 +177,8 @@ static memblock_t* free_mem_head = NULL; // global variable for start of free me
 
 static void __insert_memblock(memblock_t* memblock) {
     if (free_mem_head == NULL) {
+      char* msg = "Inserted at head.\n";
+      write(2, msg, strlen(msg));
       free_mem_head = memblock;
       return;
     }
@@ -185,6 +187,8 @@ static void __insert_memblock(memblock_t* memblock) {
     while (current != NULL) {
         // memblock is lower in address value than current, correct spot found
         if (memblock < current) {
+          char* msg = "Inserted before.\n";
+          write(2, msg, strlen(msg));
           prev->next = memblock;
           memblock->next = current;
           return;
