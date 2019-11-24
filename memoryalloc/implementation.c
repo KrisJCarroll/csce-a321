@@ -175,6 +175,20 @@ typedef struct memblock memblock_t;
 
 static memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
 
+static void __munmap_memblocks() {
+  memblock_t* current = free_mem_head;
+
+  while (current) {
+    if (current->size == current->mem_size) {
+      int status = munmap(current->mem_start, current->mem_size);
+      if (!status){
+        char* msg = "ERROR: Munmap failed.";
+        write(2, msg, strlen(msg));
+      }
+    }
+  }
+}
+
 static void __coalesce_memblock(memblock_t* ptr) {
     if (ptr == NULL) return;
     if (ptr->next == NULL) return; // can't coalesce the last block
@@ -185,20 +199,23 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->size = ptr->size + next->size;
          //char* msg = "Coalesced.\n";
          //write(2, msg, strlen(msg));
-         if (ptr->size == ptr->mem_size) {
-           char* msg = "Munmapping.\n";
-           write(2, msg, strlen(msg));
-           int status = munmap((void*)ptr, ptr->mem_size);
-           if (status < 0) {
-             char* msg = "Munmap failed.\n";
-             write(2, msg, strlen(msg));
-             return;
+         __munmap_memblocks();
+         next = ptr->next;
+         if (next == NULL || next->next == NULL) return;
+         if (next->mem_start == next->next->mem_start) {
+           if ( ( ((void*)next) + next->size ) == ((void*)next->next) ) {
+             memblock_t* temp = next->next;
+             next->next = temp->next;
+             next->size = next->size + temp->size;
+
+             __munmap_memblocks();
            }
-           return;
          }
          return;
       }
+      return;
     }
+    return;
     //char* msg = "Did not coalesce.\n";
     //write(2, msg, strlen(msg));
 }
