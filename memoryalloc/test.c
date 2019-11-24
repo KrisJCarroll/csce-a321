@@ -9,7 +9,7 @@ int main(int argc, const char *argv[]) {
     free(bigger_essay);
     free(essay);
 
-    char* jiggabyte = malloc(1024*1024*1024);
+    char* jiggabyte = malloc(1073741824);
     free(jiggabyte);
 
     printf("Getting ready to test calloc...");
