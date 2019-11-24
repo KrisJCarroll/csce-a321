@@ -259,9 +259,16 @@ static void __insert_memblock(memblock_t* memblock) {
     while (current != NULL) {
         // memblock is lower in address value than current, correct spot found
         if (((void*)memblock) < ((void*)current)) {
+          // should be added before the head
+          if (prev == NULL) {
+            memblock->next = free_mem_head;
+            free_mem_head = memblock;
+            __coalesce_memblock(memblock);
+          }
+          // insert between prev and current
           prev->next = memblock;
           memblock->next = current;
-          __coalesce_memblock(memblock);
+          __coalesce_memblock(prev);
           return;
         }
         prev = current;
@@ -269,6 +276,7 @@ static void __insert_memblock(memblock_t* memblock) {
     }
     // hit the end of the list
     prev->next = memblock;
+    __coalesce_memblock(memblock);
     return;
 }
 
