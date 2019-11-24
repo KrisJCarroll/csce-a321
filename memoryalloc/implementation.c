@@ -234,6 +234,7 @@ static void __coalesce_memblock(memblock_t* ptr) {
              next->size = next->size + temp->size;
              coalesced = 1;
              __munmap_memblocks();
+             return;
            }
          }
          
