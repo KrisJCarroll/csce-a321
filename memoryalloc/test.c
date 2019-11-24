@@ -15,6 +15,7 @@ int main(int argc, const char *argv[]) {
     free (realbig);
 
     char* too_big = malloc(5073741824);
+    sleep(300);
     free(too_big);
 
 }
