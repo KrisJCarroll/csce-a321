@@ -287,12 +287,12 @@ static void __mmap_memblock(size_t size) {
     }
 
     // update memblock_t header information for new memory block and add to linked list
-    memblock_t* new_memblock = (memblock_t*) ptr;
-    new_memblock->size = size;
-    new_memblock->mem_start = ptr;
-    new_memblock->mem_size = size;
-    new_memblock->next = NULL;
-    __insert_memblock(new_memblock);
+    
+    ((memblock_t*)ptr)->size = size;
+    ((memblock_t*)ptr)->mem_start = ptr;
+    ((memblock_t*)ptr)->mem_size = size;
+    ((memblock_t*)ptr)->next = NULL;
+    __insert_memblock((memblock_t*)ptr);
 
     return;
 }
