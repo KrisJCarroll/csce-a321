@@ -175,6 +175,23 @@ typedef struct memblock memblock_t;
 
 static memblock_t* free_mem_head = NULL; // global variable for start of free memory linked list
 
+static void __coalesce_memblock(memblock_t* ptr) {
+    if (ptr == NULL) return;
+    if (ptr->next == NULL) return; // can't coalesce the last block
+    memblock_t* next = ptr->next;
+    if (ptr->mem_start == next->mem_start) {
+      if ( ( ((void*)ptr) + ptr->size ) == ((void*)next) ) {
+         ptr->next = next->next; 
+         ptr->size = ptr->size + next->size;
+         char* msg = "Coalesced.\n";
+         write(2, msg, strlen(msg));
+         return;
+      }
+    }
+    char* msg = "Did not coalesce.\n";
+    write(2, msg, strlen(msg));
+}
+
 static void __insert_memblock(memblock_t* memblock) {
     if (free_mem_head == NULL) {
       char* msg = "Inserted at head.\n";
@@ -191,6 +208,7 @@ static void __insert_memblock(memblock_t* memblock) {
           write(2, msg, strlen(msg));
           prev->next = memblock;
           memblock->next = current;
+          __coalesce_memblock(memblock);
           return;
         }
         prev = current;
@@ -295,9 +313,13 @@ void *__malloc_impl(size_t size) {
       void* user_ptr = ((void*) p) + p_size; // go to the end of block
       user_ptr = user_ptr - (HEADER_SIZE + user_size); // go back the size of header and size from user
       p->size = p_size - (HEADER_SIZE + user_size); // adjust p size accordingly
-      ((memblock_t*)user_ptr)->size = user_size + HEADER_SIZE; // update header info for user
+
+      // update header info for user memory
+      ((memblock_t*)user_ptr)->size = user_size + HEADER_SIZE; 
       ((memblock_t*)user_ptr)->mem_size = p->mem_size;
       ((memblock_t*)user_ptr)->mem_start = p->mem_start;
+
+      // point at where the memory starts and return to user
       user_ptr = user_ptr + HEADER_SIZE;
       return user_ptr;
   } 
