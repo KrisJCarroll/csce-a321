@@ -180,7 +180,7 @@ static void __munmap_memblocks() {
   memblock_t* prev = NULL;
 
   while (current) {
-    if (current->size == current->mem_size) {
+    if (current->size == current->mem_size && current->mem_start == (void*) current) {
       memblock_t* next = current->next;
       char* msg = "\tMUNMAPPING!!!!";
       write(2, msg, strlen(msg));
