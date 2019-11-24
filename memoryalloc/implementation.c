@@ -343,7 +343,7 @@ static memblock_t* __get_memblock(size_t size) {
     if(!__try_size_t_multiply(&tempsize, size_memb, HEADER_SIZE)) return NULL;
 
     memblock_t* current = free_mem_head;
-    size = tempsize; // handles addition of HEADER_SIZE already
+    size = __round_size_word(size); // handles addition of HEADER_SIZE already
     memblock_t* prev = NULL;
     while (current) {
         // found one that will work
