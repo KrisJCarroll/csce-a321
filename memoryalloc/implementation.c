@@ -215,7 +215,6 @@ static void __coalesce_memblock(memblock_t* ptr) {
       // check to see if they're adjacent
       if ( ( ((void*)ptr) + ptr->size ) == ((void*)(ptr->next)) ) {
          // can coalesce
-         memblock_t* temp;
          memblock_t* temp = ptr->next;
          ptr->next = temp->next; 
          ptr->size = ptr->size + temp->size;
