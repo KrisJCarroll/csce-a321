@@ -177,15 +177,26 @@ static memblock_t* free_mem_head = NULL; // global variable for start of free me
 
 static void __munmap_memblocks() {
   memblock_t* current = free_mem_head;
+  memblock_t* prev = NULL;
 
   while (current) {
     if (current->size == current->mem_size) {
+      memblock_t* next = current->next;
       int status = munmap(current->mem_start, current->mem_size);
       if (!status){
         char* msg = "ERROR: Munmap failed.";
         write(2, msg, strlen(msg));
+        return;
       }
+      if (prev == NULL) {
+        free_mem_head = next;
+      }
+      else
+        prev->next = next;
+      return;
     }
+    prev = current;
+    current = current->next;
   }
 }
 
