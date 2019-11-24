@@ -344,13 +344,14 @@ void *__calloc_impl(size_t nmemb, size_t size) {
 
   // no overflow, get memory with malloc and if successful, write 0's across all bytes
   user_ptr = __malloc_impl(total);
-  if (user_ptr) {
+  if (user_ptr != NULL) {
     __memset(user_ptr, 0, total);
   }
 
   // didn't succeed in allocating memory from malloc, set errno and return NULL
   errno = ENOMEM;
-  perror("Error: calloc failed to allocate");
+  char* msg = "Error: calloc failed to allocate\n";
+  write(2, msg, strlen(msg));
   return NULL;  
 }
 
