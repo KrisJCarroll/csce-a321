@@ -218,7 +218,8 @@ static void __coalesce_memblock(memblock_t* ptr) {
          //write(2, msg, strlen(msg));
          next = ptr->next;
          __munmap_memblocks();
-         if (next == NULL || next->next == NULL) return;
+         if (next == NULL) return;
+         if (next->next == NULL) return;
          if (next->mem_start == next->next->mem_start) {
            if ( ( ((void*)next) + next->size ) == ((void*)next->next) ) {
              memblock_t* temp = next->next;
