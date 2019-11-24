@@ -9,6 +9,9 @@ int main(int argc, const char *argv[]) {
     free(bigger_essay);
     free(essay);
 
+    char* jiggabyte = malloc(1024*1024*1024);
+    free(jiggabyte);
+
     printf("Getting ready to test calloc...");
     char* all_zeroes = calloc(10, sizeof(char));
     printf("Here's all_zeroes: %s",all_zeroes);
