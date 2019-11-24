@@ -350,10 +350,10 @@ static memblock_t* __get_memblock(size_t size) {
         // found one that will work
         if (current->size >= size) {
            // not going to be enough left over to be useful, return the whole block
-           if (current->size - size <= __round_size_page(HEADER_SIZE)) {
+           if (current->size - size < __round_size_page(HEADER_SIZE)) {
               // was the head, set it to NULL
               if (prev == NULL) {
-                 free_mem_head = NULL;
+                 free_mem_head = current->next;
                  current->next = NULL;
                  return current;
               }
