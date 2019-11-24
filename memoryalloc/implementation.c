@@ -188,8 +188,7 @@ static void __munmap_memblocks() {
         write(2, msg, strlen(msg));
         return;
       }
-      char* msg = "\tMUNMAPPED!\n";
-      write(2, msg, strlen(msg));
+      
       if (prev == NULL) {
         free_mem_head = next;
         return;
