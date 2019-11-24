@@ -324,6 +324,12 @@ static void __mmap_memblock(size_t size) {
 static memblock_t* __get_memblock(size_t size) {
     if (size == 0) return NULL;
 
+    size_t tempsize = size - (size_t) 1;	
+    size_t size_memb = tempsize + HEADER_SIZE;	
+    if (size_memb < tempsize) return NULL;	
+    size_memb /= HEADER_SIZE;	
+    if(!__try_size_t_multiply(&tempsize, size_memb, HEADER_SIZE)) return NULL;
+
     memblock_t* current = free_mem_head;
     size = __round_size_word(size); // handles addition of HEADER_SIZE already
     memblock_t* prev = NULL;
