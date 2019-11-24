@@ -221,9 +221,8 @@ static void __coalesce_memblock(memblock_t* ptr) {
          coalesced = 1;
          char* msg = "\tCoalesced passed pointer with next.\n";
          write(2, msg, strlen(msg));
-         //char* msg = "Coalesced.\n";
-         //write(2, msg, strlen(msg));
       }
+      
       if (ptr->next == NULL) {
         if (coalesced) __munmap_memblocks();
         return;
