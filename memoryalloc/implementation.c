@@ -221,11 +221,11 @@ static void __coalesce_memblock(memblock_t* ptr) {
          next = ptr->next;
          
          if (next == NULL) {
-           //if (coalesced) __munmap_memblocks();
+           if (coalesced) __munmap_memblocks();
            return;
          }
          if (next->next == NULL) {
-           //if (coalesced) __munmap_memblocks();
+           if (coalesced) __munmap_memblocks();
            return;
          } 
          if (next->mem_start == next->next->mem_start) {
@@ -235,7 +235,7 @@ static void __coalesce_memblock(memblock_t* ptr) {
              next->size = next->size + temp->size;
              coalesced = 1;
              __coalesce_memblock((memblock_t*)next->mem_start);
-             //__munmap_memblocks();
+             __munmap_memblocks();
            }
          }
          
