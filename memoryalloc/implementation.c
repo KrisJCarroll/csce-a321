@@ -203,7 +203,7 @@ static void __insert_memblock(memblock_t* memblock) {
     memblock_t* prev = NULL;
     while (current != NULL) {
         // memblock is lower in address value than current, correct spot found
-        if (memblock < current) {
+        if (((void*)memblock) < ((void*)current)) {
           char* msg = "Inserted before.\n";
           write(2, msg, strlen(msg));
           prev->next = memblock;
@@ -359,7 +359,7 @@ void *__realloc_impl(void *ptr, size_t size) {
 
 void __free_impl(void *ptr) {
   if (ptr == NULL) return;
-  memblock_t* freed = (memblock_t*) (ptr - HEADER_SIZE);
+  memblock_t* freed = ((memblock_t*) (ptr - HEADER_SIZE));
   __insert_memblock(freed);
 }
 
