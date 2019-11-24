@@ -182,8 +182,8 @@ static void __munmap_memblocks() {
   while (current) {
     if (current->size == current->mem_size && current->mem_start == (void*) current) {
       memblock_t* next = current->next;
-      //char* msg = "\tMUNMAPPING!!!!";
-      //write(2, msg, strlen(msg));
+      char* msg = "\tMUNMAPPING!!!!";
+      write(2, msg, strlen(msg));
       int status = munmap(current->mem_start, current->mem_size);
       if (status < 0){
         char* msg = "ERROR: Munmap failed.";
