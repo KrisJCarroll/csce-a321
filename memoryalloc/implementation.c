@@ -268,9 +268,12 @@ static void __insert_memblock(memblock_t* memblock) {
         prev = current;
         current = current->next;
     }
-    // hit the end of the list
-    prev->next = memblock;
-    __coalesce_memblock(prev);
+    if (prev) {
+      prev->next = memblock;
+      __coalesce_memblock(prev);
+    }
+    free_mem_head = memblock;
+    __coalesce_memblock(memblock);
     return;
 }
 
