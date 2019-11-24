@@ -188,7 +188,7 @@ static void __munmap_memblocks() {
         write(2, msg, strlen(msg));
         return;
       }
-      
+
       if (prev == NULL) {
         free_mem_head = next;
         return;
@@ -304,8 +304,6 @@ static void __mmap_memblock(size_t size) {
     void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     // error checking mmap
     if (ptr == MAP_FAILED) {
-        char* msg = "Error: mmap failed.\n";
-        write(2, msg, strlen(msg));
         return;
     }
 
@@ -389,8 +387,6 @@ static memblock_t* __get_memblock(size_t size) {
     }
 
     // we failed, return null
-    char* msg = "Error: could not get memblock\n";
-    write(2, msg, strlen(msg));
     return NULL;
 }
 
@@ -417,8 +413,6 @@ void *__malloc_impl(size_t size) {
       return user_ptr;
   } 
   // couldn't allocate memory, return NULL
-  char* msg = "Error: malloc failed to allocate\n";
-  write(2, msg, strlen(msg));
   errno = ENOMEM;
   return NULL;
 }
@@ -438,8 +432,6 @@ void *__calloc_impl(size_t nmemb, size_t size) {
 
   // didn't succeed in allocating memory from malloc, set errno and return NULL
   errno = ENOMEM;
-  char* msg = "Error: calloc failed to allocate\n";
-  write(2, msg, strlen(msg));
   return NULL;  
 }
 
