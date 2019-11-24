@@ -4,11 +4,11 @@
 int main(int argc, const char *argv[]) {
     char* null = malloc(0);
     free(null);
-    char* null = calloc(0, 0);
+    null = calloc(0, 0);
     free(null);
-    char* null = calloc(0, sizeof(int));
+    null = calloc(0, sizeof(int));
     free(null);
-    char* null = calloc(100000, 0);
+    null = calloc(100000, 0);
     free(null);
 
     char* realbig = malloc(1073741824);
