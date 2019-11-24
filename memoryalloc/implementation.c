@@ -284,13 +284,21 @@ void *__malloc_impl(size_t size) {
   // requested to allocate 0 bytes
   if (size == (size_t) 0) return NULL;
 
-  memblock_t* p = __get_memblock(size);
-  size_t round_size = __round_size_word(size);
+  memblock_t* p = __get_memblock(size); // the memblock version
+  size_t user_size = __round_size_word(size); // get the size we're going to take from it
+  
   if (p) {
       // TODO: check to see if remaining size in memblock after allocation is at least
       //       HEADER_SIZE + WORD_SIZE in length, otherwise allocate the entire block
       //       and remove it from the linked list
-      void* user_ptr = p->mem_start + HEADER_SIZE;
+      size_t p_size = p->size;
+      void* user_ptr = ((void*) p) + p_size; // go to the end of block
+      user_ptr = user_ptr - (HEADER_SIZE + user_size); // go back the size of header and size from user
+      p->size = p_size - (HEADER_SIZE + user_size); // adjust p size accordingly
+      ((memblock_t*)user_ptr)->size = user_size + HEADER_SIZE; // update header info for user
+      ((memblock_t*)user_ptr)->mem_size = p->mem_size;
+      ((memblock_t*)user_ptr)->mem_start = p->mem_start;
+      user_ptr = user_ptr + HEADER_SIZE;
       return user_ptr;
   } 
   // couldn't allocate memory, return NULL
