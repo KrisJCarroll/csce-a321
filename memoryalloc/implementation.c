@@ -332,7 +332,7 @@ void *__malloc_impl(size_t size) {
   // couldn't allocate memory, return NULL
   char* msg = "Error: malloc failed to allocate\n";
   write(2, msg, strlen(msg));
-  errno = ENOMEM;
+  //errno = ENOMEM;
   return NULL;
 }
 
