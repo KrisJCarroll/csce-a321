@@ -220,8 +220,14 @@ static void __coalesce_memblock(memblock_t* ptr) {
          //write(2, msg, strlen(msg));
          next = ptr->next;
          
-         if (next == NULL) return;
-         if (next->next == NULL) return;
+         if (next == NULL) {
+           if (coalesced) __munmap_memblocks();
+           return;
+         }
+         if (next->next == NULL) {
+           if (coalesced) __munmap_memblocks();
+           return;
+         } 
          if (next->mem_start == next->next->mem_start) {
            if ( ( ((void*)next) + next->size ) == ((void*)next->next) ) {
              memblock_t* temp = next->next;
@@ -229,7 +235,7 @@ static void __coalesce_memblock(memblock_t* ptr) {
              next->size = next->size + temp->size;
              coalesced = 1;
              __coalesce_memblock((memblock_t*)next->mem_start);
-
+             __munmap_memblocks();
            }
          }
          
@@ -237,7 +243,6 @@ static void __coalesce_memblock(memblock_t* ptr) {
       }
       return;
     }
-    if (coalesced == 1) __munmap_memblocks();
     return;
     //char* msg = "Did not coalesce.\n";
     //write(2, msg, strlen(msg));
