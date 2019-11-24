@@ -237,7 +237,7 @@ static void __coalesce_memblock(memblock_t* ptr) {
       }
       return;
     }
-    if (coalesced) __munmap_memblocks();
+    if (coalesced == 1) __munmap_memblocks();
     return;
     //char* msg = "Did not coalesce.\n";
     //write(2, msg, strlen(msg));
