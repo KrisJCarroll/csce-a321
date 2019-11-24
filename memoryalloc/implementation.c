@@ -247,6 +247,11 @@ static void __coalesce_memblock(memblock_t* ptr) {
 }
 
 static void __insert_memblock(memblock_t* memblock) {
+    // only memblock in the list
+    if (free_mem_head == NULL) {
+      free_mem_head = memblock;
+      return;
+    }
     memblock_t* current = free_mem_head;
     memblock_t* prev = NULL;
     while (current != NULL) {
