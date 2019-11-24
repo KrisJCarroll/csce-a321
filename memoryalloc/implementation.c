@@ -192,9 +192,12 @@ static void __munmap_memblocks() {
       }
       if (prev == NULL) {
         free_mem_head = next;
+        return;
       }
-      else
+      else {
         prev->next = next;
+        return;
+      }
       return;
     }
     prev = current;
