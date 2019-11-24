@@ -312,6 +312,10 @@ void *__malloc_impl(size_t size) {
       //       HEADER_SIZE + WORD_SIZE in length, otherwise allocate the entire block
       //       and remove it from the linked list
       size_t p_size = p->size;
+      if (p_size - (user_size + HEADER_SIZE) < __round_size_page(HEADER_SIZE)) {
+          char* msg = "We need to remove the block from free list\n";
+          write(2, msg, strlen(msg));
+      }
       void* user_ptr = ((void*) p) + p_size; // go to the end of block
       user_ptr = user_ptr - (HEADER_SIZE + user_size); // go back the size of header and size from user
       p->size = p_size - (HEADER_SIZE + user_size); // adjust p size accordingly
