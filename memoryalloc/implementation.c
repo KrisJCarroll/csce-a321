@@ -209,47 +209,52 @@ static void __coalesce_memblock(memblock_t* ptr) {
     if (ptr == NULL) return;
     if (ptr->next == NULL) return; // can't coalesce the last block
     int coalesced = 0;
-    memblock_t* next = ptr->next;
-    if (ptr->mem_start == next->mem_start) {
-      if ( ( ((void*)ptr) + ptr->size ) == ((void*)next) ) {
-         ptr->next = next->next; 
-         ptr->size = ptr->size + next->size;
+    
+    // check to see if they're from the same mmap
+    if (ptr->mem_start == ptr->next->mem_start) {
+      // check to see if they're adjacent
+      if ( ( ((void*)ptr) + ptr->size ) == ((void*)(ptr->next)) ) {
+         // can coalesce
+         memblock_t* temp;
+         memblock_t* temp = ptr->next;
+         ptr->next = temp->next; 
+         ptr->size = ptr->size + temp->size;
          coalesced = 1;
          char* msg = "\tCoalesced passed pointer with next.\n";
          write(2, msg, strlen(msg));
          //char* msg = "Coalesced.\n";
          //write(2, msg, strlen(msg));
-         next = ptr->next;
-         
-         if (next == NULL) {
-           if (coalesced) __munmap_memblocks();
-           return;
-         }
-         if (next->next == NULL) {
-           if (coalesced) __munmap_memblocks();
-           return;
-         } 
-         if (next->mem_start == next->next->mem_start) {
-           if ( ( ((void*)next) + next->size ) == ((void*)next->next) ) {
-             memblock_t* temp = next->next;
-             next->next = temp->next;
-             next->size = next->size + temp->size;
-             coalesced = 1;
-             char* msg = "\tCoalesced next with its next.\n";
-             write(2, msg, strlen(msg));
-             __munmap_memblocks();
-             return;
-           }
-         }
-         
-         return;
       }
+      if (ptr->next == NULL) {
+        if (coalesced) __munmap_memblocks();
+        return;
+      }
+
+      if (ptr->next->next == NULL) {
+        if (coalesced) __munmap_memblocks();
+        return;
+      } 
+
+      if (ptr->next->mem_start == ptr->next->next->mem_start) {
+        if ( ( ((void*)(ptr->next)) + ptr->next->size ) == ((void*)(ptr->next->next)) ) {
+          memblock_t* temp = ptr->next->next;
+          ptr->next->next = temp->next;
+          ptr->next->size = ptr->next->size + temp->size;
+          coalesced = 1;
+          char* msg = "\tCoalesced next with its next.\n";
+          write(2, msg, strlen(msg));
+          __munmap_memblocks();
+          return;
+        }
+      }
+         
       return;
     }
-    return;
+}
+
     //char* msg = "Did not coalesce.\n";
     //write(2, msg, strlen(msg));
-}
+
 
 static void __insert_memblock(memblock_t* memblock) {
     // only memblock in the list
