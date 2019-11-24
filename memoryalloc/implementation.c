@@ -185,7 +185,7 @@ static void __munmap_memblocks() {
       //char* msg = "\tMUNMAPPING!!!!";
       //write(2, msg, strlen(msg));
       int status = munmap(current->mem_start, current->mem_size);
-      if (status == -1){
+      if (status < 0){
         char* msg = "ERROR: Munmap failed.";
         write(2, msg, strlen(msg));
         return;
