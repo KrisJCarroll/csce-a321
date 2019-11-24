@@ -386,7 +386,17 @@ static memblock_t* __get_memblock(size_t size) {
     current = free_mem_head;
     while (current) {
         if (current->size >= size) {
-            return current;
+           // we have enough, let's chop it up and give them the part they need
+           void* user_ptr = ((void*) current) + current->size; // go to the end of block
+           user_ptr = user_ptr - size; // go back the size of header and size from user
+           current->size = (current->size) - size; // adjust p size accordingly
+
+           // update header info for user memory
+           ((memblock_t*)user_ptr)->size = size; 
+           ((memblock_t*)user_ptr)->mem_size = current->mem_size;
+           ((memblock_t*)user_ptr)->mem_start = current->mem_start;
+
+           return (memblock_t*) user_ptr;
         }
         current = current->next;
     }
