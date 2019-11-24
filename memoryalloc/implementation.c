@@ -313,7 +313,8 @@ static void __mmap_memblock(size_t size) {
     ((memblock_t*)ptr)->mem_size = size;
     ((memblock_t*)ptr)->next = NULL;
     __insert_memblock((memblock_t*)ptr);
-
+    char* msg = "\tMMAP'ed new block.\t";
+    write(2, msg, strlen(msg));
     return;
 }
 
