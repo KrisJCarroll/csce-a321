@@ -183,19 +183,17 @@ static void __coalesce_memblock(memblock_t* ptr) {
       if ( ( ((void*)ptr) + ptr->size ) == ((void*)next) ) {
          ptr->next = next->next; 
          ptr->size = ptr->size + next->size;
-         char* msg = "Coalesced.\n";
-         write(2, msg, strlen(msg));
+         //char* msg = "Coalesced.\n";
+         //write(2, msg, strlen(msg));
          return;
       }
     }
-    char* msg = "Did not coalesce.\n";
-    write(2, msg, strlen(msg));
+    //char* msg = "Did not coalesce.\n";
+    //write(2, msg, strlen(msg));
 }
 
 static void __insert_memblock(memblock_t* memblock) {
     if (free_mem_head == NULL) {
-      char* msg = "Inserted at head.\n";
-      write(2, msg, strlen(msg));
       free_mem_head = memblock;
       return;
     }
@@ -204,8 +202,6 @@ static void __insert_memblock(memblock_t* memblock) {
     while (current != NULL) {
         // memblock is lower in address value than current, correct spot found
         if (((void*)memblock) < ((void*)current)) {
-          char* msg = "Inserted before.\n";
-          write(2, msg, strlen(msg));
           prev->next = memblock;
           memblock->next = current;
           __coalesce_memblock(memblock);
@@ -215,8 +211,6 @@ static void __insert_memblock(memblock_t* memblock) {
         current = current->next;
     }
     // hit the end of the list
-    char* msg = "Inserted before.\n";
-    write(2, msg, strlen(msg));
     prev->next = memblock;
     return;
 }
@@ -270,8 +264,6 @@ static memblock_t* __get_memblock(size_t size) {
     }
 
     // no free block large enough, let's make a new one
-    char* msg = "MMAP'ing new memblock\n";
-    write(2, msg, strlen(msg));
     __mmap_memblock(size);
     // and check again
     current = free_mem_head;
@@ -283,7 +275,7 @@ static memblock_t* __get_memblock(size_t size) {
     }
 
     // we failed, return null
-    msg = "Error: could not get memblock\n";
+    char* msg = "Error: could not get memblock\n";
     write(2, msg, strlen(msg));
     return NULL;
 }
