@@ -182,8 +182,6 @@ static void __munmap_memblocks() {
   while (current) {
     if ((current->size == current->mem_size) && (current->mem_start == ((void*) current))) {
       memblock_t* next = current->next;
-      char* msg = "\tMUNMAPPING!!!!\n";
-      write(2, msg, strlen(msg));
       int status = munmap(current->mem_start, current->mem_size);
       if (status < 0){
         char* msg = "ERROR: Munmap failed.";
@@ -219,8 +217,6 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->next = temp->next; 
          ptr->size = ptr->size + temp->size;
          coalesced = 1;
-         char* msg = "\tCoalesced passed pointer with next.\n";
-         write(2, msg, strlen(msg));
       }
 
       if (ptr->next == NULL) {
@@ -239,8 +235,6 @@ static void __coalesce_memblock(memblock_t* ptr) {
           ptr->next->next = temp->next;
           ptr->next->size = ptr->next->size + temp->size;
           coalesced = 1;
-          char* msg = "\tCoalesced next with its next.\n";
-          write(2, msg, strlen(msg));
           __munmap_memblocks();
           return;
         }
@@ -267,8 +261,6 @@ static void __insert_memblock(memblock_t* memblock) {
         if (((void*)memblock) < ((void*)current)) {
           // should be added before the head
           if (prev == NULL) {
-            char* msg = "\tInserting at head\n";
-            write(2, msg, strlen(msg));
             memblock->next = free_mem_head;
             free_mem_head = memblock;
             __coalesce_memblock(memblock);
@@ -277,8 +269,6 @@ static void __insert_memblock(memblock_t* memblock) {
           // insert between prev and current
           prev->next = memblock;
           memblock->next = current;
-          char* msg = "\tInserting between prev and current\n";
-          write(2, msg, strlen(msg));
           __coalesce_memblock(memblock);
           __coalesce_memblock(prev);
           return;
@@ -287,8 +277,6 @@ static void __insert_memblock(memblock_t* memblock) {
         current = current->next;
     }
     // hit the end of the list, add to prev and coalesce on prev
-    char* msg = "\tInserting at end.\n";
-    write(2, msg, strlen(msg));
     prev->next = memblock;
     __coalesce_memblock(prev);
     return;
@@ -327,8 +315,6 @@ static void __mmap_memblock(size_t size) {
     ((memblock_t*)ptr)->mem_size = size;
     ((memblock_t*)ptr)->next = NULL;
     __insert_memblock((memblock_t*)ptr);
-    char* msg = "\tMMAP'ed new block.\n";
-    write(2, msg, strlen(msg));
     return;
 }
 
