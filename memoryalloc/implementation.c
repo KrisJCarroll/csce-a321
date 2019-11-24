@@ -283,7 +283,7 @@ static memblock_t* __get_memblock(size_t size) {
     }
 
     // we failed, return null
-    char* msg = "Error: could not get memblock\n";
+    msg = "Error: could not get memblock\n";
     write(2, msg, strlen(msg));
     return NULL;
 }
