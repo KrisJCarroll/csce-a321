@@ -215,6 +215,8 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->next = next->next; 
          ptr->size = ptr->size + next->size;
          coalesced = 1;
+         char* msg = "\tCoalesced passed pointer with next.";
+         write(2, msg, strlen(msg));
          //char* msg = "Coalesced.\n";
          //write(2, msg, strlen(msg));
          next = ptr->next;
@@ -233,6 +235,8 @@ static void __coalesce_memblock(memblock_t* ptr) {
              next->next = temp->next;
              next->size = next->size + temp->size;
              coalesced = 1;
+             char* msg = "\tCoalesced next with its next.";
+             write(2, msg, strlen(msg));
              __munmap_memblocks();
              return;
            }
@@ -397,7 +401,6 @@ void *__malloc_impl(size_t size) {
   if (size == (size_t) 0) return NULL;
 
   memblock_t* p = __get_memblock(size); // the memblock version
-  size_t user_size = __round_size_word(size); // get the size we're going to take from it
   
   if (p) {
       void* user_ptr = ((void*) p) + HEADER_SIZE;
