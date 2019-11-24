@@ -18,7 +18,7 @@ int main(int argc, const char *argv[]) {
     char* too_big = malloc(9223372036854775807);
     free(too_big);
 
-    char* too_big = calloc(9223372036854775807, sizeof(char));
+    too_big = calloc(9223372036854775807, sizeof(char));
     free(too_big);
 
     char* new_ptr = realloc(NULL, 1024);
