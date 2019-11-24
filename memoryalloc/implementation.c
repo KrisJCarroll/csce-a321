@@ -185,6 +185,17 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->size = ptr->size + next->size;
          //char* msg = "Coalesced.\n";
          //write(2, msg, strlen(msg));
+         if (ptr->size == ptr->mem_size) {
+           char* msg = "Munmapping.\n";
+           write(2, msg, strlen(msg));
+           int status = munmap((void*)ptr, ptr->mem_size);
+           if (status < 0) {
+             char* msg = "Munmap failed.\n";
+             write(2, msg, strlen(msg));
+             return;
+           }
+           return;
+         }
          return;
       }
     }
