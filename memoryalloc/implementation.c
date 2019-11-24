@@ -291,7 +291,7 @@ static void __mmap_memblock(size_t size) {
     size = __round_size_page(size);
     write(2, &size, sizeof(size));
     if (size < MIN_MMAP_SIZE) size = MIN_MMAP_SIZE; // minimum size of 32 MB
-    void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     // error checking mmap
     if (ptr == MAP_FAILED) {
         char* msg = "Error: mmap failed.\n";
