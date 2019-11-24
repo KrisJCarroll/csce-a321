@@ -215,7 +215,7 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->next = next->next; 
          ptr->size = ptr->size + next->size;
          coalesced = 1;
-         char* msg = "\tCoalesced passed pointer with next.";
+         char* msg = "\tCoalesced passed pointer with next.\n";
          write(2, msg, strlen(msg));
          //char* msg = "Coalesced.\n";
          //write(2, msg, strlen(msg));
@@ -235,7 +235,7 @@ static void __coalesce_memblock(memblock_t* ptr) {
              next->next = temp->next;
              next->size = next->size + temp->size;
              coalesced = 1;
-             char* msg = "\tCoalesced next with its next.";
+             char* msg = "\tCoalesced next with its next.\n";
              write(2, msg, strlen(msg));
              __munmap_memblocks();
              return;
