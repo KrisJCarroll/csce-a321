@@ -211,8 +211,8 @@ static void __coalesce_memblock(memblock_t* ptr) {
          ptr->next = next->next; 
          ptr->size = ptr->size + next->size;
          __coalesce_memblock((memblock_t*)ptr->mem_start);
-         //char* msg = "Coalesced.\n";
-         //write(2, msg, strlen(msg));
+         char* msg = "Coalesced.\n";
+         write(2, msg, strlen(msg));
          __munmap_memblocks();
          next = ptr->next;
          if (next == NULL || next->next == NULL) return;
@@ -292,8 +292,6 @@ static void __mmap_memblock(size_t size) {
     new_memblock->mem_start = ptr;
     new_memblock->mem_size = size;
     new_memblock->next = NULL;
-    char* msg = "\tInserting new MMAP'ed block.\n";
-    write(2, msg, strlen(msg));
     __insert_memblock(new_memblock);
 
     return;
