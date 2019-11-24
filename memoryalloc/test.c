@@ -9,7 +9,7 @@ int main(int argc, const char *argv[]) {
     free(bigger_essay);
     free(essay);
 
-    char* all_zeroes = calloc(10, sizeof(char));
+    char* all_zeroes = calloc((size_t)10, sizeof(char));
     printf("%s",all_zeroes);
     printf("%s", "\n");
     
