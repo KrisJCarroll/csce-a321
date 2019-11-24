@@ -339,7 +339,7 @@ static memblock_t* __get_memblock(size_t size) {
 
     size_t tempsize = size - (size_t) 1;
     size_t size_memb = tempsize + HEADER_SIZE;
-    if (size_memb < size) return NULL;
+    if (size_memb < tempsize) return NULL;
     size_memb /= HEADER_SIZE;
     if(!__try_size_t_multiply(&tempsize, size_memb, HEADER_SIZE)) return NULL;
 
