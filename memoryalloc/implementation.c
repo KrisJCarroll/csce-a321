@@ -289,6 +289,7 @@ static size_t __round_size_page(size_t size) {
 // map a new block of memory at least as large as size + header - page aligned to PAGE_SIZE
 static void __mmap_memblock(size_t size) {
     size = __round_size_page(size);
+    printf("%d", size);
     if (size < MIN_MMAP_SIZE) size = MIN_MMAP_SIZE; // minimum size of 32 MB
     void* ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     // error checking mmap
