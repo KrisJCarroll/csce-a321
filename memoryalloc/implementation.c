@@ -222,7 +222,7 @@ static void __coalesce_memblock(memblock_t* ptr) {
          char* msg = "\tCoalesced passed pointer with next.\n";
          write(2, msg, strlen(msg));
       }
-      
+
       if (ptr->next == NULL) {
         if (coalesced) __munmap_memblocks();
         return;
@@ -350,6 +350,8 @@ static memblock_t* __get_memblock(size_t size) {
         if (current->size >= size) {
            // not going to be enough left over to be useful, return the whole block
            if (current->size - size < __round_size_page(HEADER_SIZE)) {
+              char* msg = "Giving the whole block.\n";
+              write(2, msg, strlen(msg));
               // was the head, set it to NULL
               if (prev == NULL) {
                  free_mem_head = current->next;
