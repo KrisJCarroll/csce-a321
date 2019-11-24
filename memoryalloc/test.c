@@ -16,7 +16,12 @@ int main(int argc, const char *argv[]) {
     free (realbig);
 
     char* too_big = malloc(9223372036854775807);
-    sleep(300);
     free(too_big);
 
+    char* too_big = calloc(9223372036854775807, sizeof(char));
+    free(too_big);
+
+    char* new_ptr = realloc(NULL, 1024);
+    new_ptr = realloc(new_ptr, 1073741824);
+    new_ptr = realloc(new_ptr, 0);
 }
