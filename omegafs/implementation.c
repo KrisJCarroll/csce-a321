@@ -240,9 +240,17 @@ gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
 typedef struct {
     uint32_t valid;
     uint32_t mode;
+    char name[32]; // 32 character name to match uint32_t sizes for everything else
+    uint32_t atime;
+    uint32_t mtime;
     uint32_t size;
+    uint32_t num_links; // how many pointers are in the pointer block
     uint32_t pointer_block;
 } omega_inode_t;
+
+typedef struct {
+    uint32_t pointers[POINTERS_PER_BLOCK];
+} omega_pointer_t;
 
 typedef struct {
     uint32_t omega_magic_num;
