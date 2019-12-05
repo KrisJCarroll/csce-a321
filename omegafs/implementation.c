@@ -232,6 +232,10 @@
 */
 
 /* Helper types and functions */
+#define MAGIC_NUMBER 4242424242
+#define POINTERS_PER_INODE 5
+#define BLOCK_SIZE = 4096
+
 
 typedef struct {
       uint32_t omega_magic_num;
@@ -254,10 +258,7 @@ typedef struct {
 typedef struct {
       uint32_t initialized;
       uint32_t size;
-      uint32_t link1_block;
-      uint32_t link2_block;
-      uint32_t link3_block;
-      uint32_t link4_block;
+      uint32_t pointers[POINTERS_PER_INODE];
 } omega_inode_t;
 
 /* YOUR HELPER FUNCTIONS GO HERE */
