@@ -232,9 +232,9 @@
 */
 
 /* Helper types and functions */
-#define MAGIC_NUMBER 4242424242
+#define MAGIC_NUMBER (uint32_t)4242424242
 #define POINTERS_PER_INODE 5
-#define BLOCK_SIZE = 4096
+#define BLOCK_SIZE (size_t)4096
 
 
 typedef struct {
@@ -245,14 +245,15 @@ typedef struct {
 } omega_fs_t;
 
 typedef struct {
-      uid_t st_uid;
-      gid_t st_gid;
-      mode_t st_mode;
-      nlink_t st_nlink;
-      off_t st_size;
-      struct timespec st_atimespec;
-      struct timespec st_mtimspec;
-      void* file_mem;
+      char directoryname[32];
+      size_t num_links;
+      uint32_t* links;
+} omega_dir_t;
+
+typedef struct {
+      char filename[32];
+      size_t size; 
+      void* data;
 } omega_file_t;
 
 typedef struct {
@@ -263,8 +264,13 @@ typedef struct {
 
 /* YOUR HELPER FUNCTIONS GO HERE */
 
-void init(void* ptr) {
+void init(void* ptr, size_t size) {
       omega_fs_t* fs = (omega_fs_t*) ptr;
+      if (fs->omega_magic_num != MAGIC_NUMBER) {
+            memset(fs, 0, size); // blank everything out
+            fs->omega_magic_num = MAGIC_NUMBER; // set the magic number
+            fs->num_blocks = (uint32_t)(size / BLOCK_SIZE);
+      }
 }
 
 /* End of helper functions */
@@ -298,8 +304,11 @@ void init(void* ptr) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
-  stbuf->st_uid = getuid();
-  stbuf->st_gid = getgid();
+      char* path_copy;
+      strcpy(path_copy, path);
+      while(1)
+  
+  
 
   *errnoptr = ENOENT;
   return -1;
