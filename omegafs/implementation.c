@@ -238,6 +238,7 @@ gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
 #define POINTERS_PER_BLOCK (uint32_t)1024
 #define INODES_PER_BLOCK (uint32_t)64
 
+// struct for holding inode information
 typedef struct {
     uint32_t valid;
     uint32_t mode;
@@ -251,10 +252,12 @@ typedef struct {
     char* name; 
 } omega_inode_t;
 
+// struct for pointer block to point at data blocks
 typedef struct {
     uint32_t pointers[POINTERS_PER_BLOCK];
 } omega_pointer_t;
 
+// super block information for beginning of filesystem
 typedef struct {
     uint32_t omega_magic_num;
     uint32_t num_blocks;
@@ -263,20 +266,16 @@ typedef struct {
     uint32_t first_inode;
 } omega_super_t;
 
+// struct for directories
 typedef struct {
     uint32_t* contents;
 } omega_directory_t;
 
-union omega_block {
-    omega_super_t super;
-    omega_inode_t inodes[INODES_PER_BLOCK];
-    omega_pointer_t pointers;
-    char data[BLOCK_SIZE];
-};
 
 
 /* YOUR HELPER FUNCTIONS GO HERE */
 
+// initialize the filesystem
 void init(void* ptr, size_t size) {
     if (((omega_super_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
         memset(ptr, 0, size); // blank everything out
@@ -287,6 +286,7 @@ void init(void* ptr, size_t size) {
         fsptr->num_inodes = (uint32_t)1; // just an inode for the root
         fsptr->first_inode = (uint32_t)20;
         omega_inode_t* inode_ptr = ptr + fsptr->first_inode; // move pointer to after super block
+        // initialize all the inodes
         for (int i = 0; i < ((omega_super_t*)ptr)->num_inode_blocks; i++) {
               for (int j = 0; j < INODES_PER_BLOCK; j++) {
                     inode_ptr->valid = (uint32_t) 0; // none of the inodes are valid at init
@@ -295,6 +295,7 @@ void init(void* ptr, size_t size) {
                     inode_ptr++;
               }
         }
+        // create the inode for root directory
         inode_ptr = ptr + fsptr->first_inode; // go back to beginning of inodes for root
         inode_ptr->atime = time(NULL);
         inode_ptr->mtime = time(NULL);
@@ -304,6 +305,7 @@ void init(void* ptr, size_t size) {
     }
 }
 
+// helper function for navigating pathnames and returning the correct inode if found
 omega_inode_t* navigate_path(void* ptr, const char* path) {
     omega_inode_t* inode_ptr = ptr + BLOCK_SIZE;
     // root 
@@ -446,11 +448,9 @@ int __myfs_readdir_implem(void *fsptr, size_t fssize, int *errnoptr,
                           const char *path, char ***namesptr) {
 
     if (strcmp(path, "/") == 0) {
-        **namesptr = malloc(sizeof(char) * 6);
-        **namesptr = "Hello\0";
-        return 1;
-  }
-  return -1;
+        return 0;
+    }
+    return -1;
 }
 
 /* Implements an emulation of the mknod system call for regular files
