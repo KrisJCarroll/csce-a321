@@ -307,7 +307,7 @@ omega_inode_t* navigate_path(void* ptr, const char* path) {
     if (strcmp(path, "/") == 0) {
         return inode_ptr;
     }
-    if (strcmp((char*)path[0], "/") == 0) path++;
+    if (strcmp(*path, "/") == 0) path++;
     while (path) {
         char* buffer = malloc(256); // storing path chunk name
         while (strcmp(*path,"/") != 0) {
