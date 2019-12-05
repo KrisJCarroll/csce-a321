@@ -374,10 +374,10 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
         stbuf->st_uid = uid;
         stbuf->st_gid = gid;
         stbuf->st_mode = S_IFDIR | 0755;
-        stbuf->st_nlink = inode->num_links;
-        stbuf->st_size = inode->size;
-        stbuf->st_atime = inode->atime;
-        stbuf->st_ctime = inode->mtime;
+        stbuf->st_nlink = 2;
+        stbuf->st_size = 4096;
+        stbuf->st_atime = time(NULL);
+        stbuf->st_ctime = time(NULL);
     }
 
 
