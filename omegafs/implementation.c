@@ -258,7 +258,7 @@ typedef struct {
 typedef struct {
       uint32_t initialized;
       uint32_t size;
-      uint32_t pointers[POINTERS_PER_INODE];
+      uint32_t link_offsets[POINTERS_PER_INODE];
 } omega_inode_t;
 
 /* YOUR HELPER FUNCTIONS GO HERE */
