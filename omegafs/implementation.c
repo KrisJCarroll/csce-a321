@@ -365,19 +365,26 @@ omega_inode_t* navigate_path(void* ptr, const char* path) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
+
     if (((omega_super_t*)fsptr)->omega_magic_num != MAGIC_NUMBER){
           init(fsptr, fssize);
     }
 
+    stbuf->st_uid = uid;
+    stbuf->st_gid = gid;
+    stbuf->st_atime = time(NULL);
+    stbuf->st_mtime = time(NULL);
+
     if (strcmp(path, "/") == 0) {
-        omega_inode_t* inode = fsptr + BLOCK_SIZE;
-        stbuf->st_uid = uid;
-        stbuf->st_gid = gid;
         stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = 2;
         stbuf->st_size = 4096;
-        stbuf->st_atime = time(NULL);
-        stbuf->st_ctime = time(NULL);
+        return 0;
+    }
+    
+    else{
+        stbuf->st_mode = S_IFREG | 0755;
+        stbuf->st_nlink = 1;
         return 0;
     }
 
