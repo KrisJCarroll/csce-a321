@@ -233,7 +233,27 @@
 
 /* Helper types and functions */
 
+typedef struct {
+      uint32_t omega_magic_num;
+
+} omega_fs_t;
+
+typedef struct {
+      uid_t st_uid;
+      gid_t st_gid;
+      mode_t st_mode;
+      nlink_t st_nlink;
+      off_t st_size;
+      struct timespec st_atimespec;
+      struct timespec st_mtimspec;
+      void* file_mem;
+} omega_file_t;
+
 /* YOUR HELPER FUNCTIONS GO HERE */
+
+void init(void* ptr) {
+      omega_fs_t* fs = (omega_fs_t*) ptr;
+}
 
 /* End of helper functions */
 
@@ -266,7 +286,8 @@
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
-  /* STUB */
+  stbuf->st_uid = getuid();
+  stbuf->st_gid = getgid();
   return -1;
 }
 
