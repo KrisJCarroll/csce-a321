@@ -276,12 +276,13 @@ void init(void* ptr, size_t size) {
         ((omega_super_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
         ((omega_super_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
         ((omega_super_t*)ptr)->num_inode_blocks = (uint32_t)(size / 20); // 5% of size set aside for inodes
-        ((omega_super_t*)ptr)->num_inodes = (uint32_t)0; // no inodes initially
+        ((omega_super_t*)ptr)->num_inodes = (uint32_t)1; // just an inode for the root
         omega_inode_t* inode_ptr = (omega_inode_t*)(ptr + BLOCK_SIZE); // move pointer to after super block
         for (int i = 0; i < ((omega_super_t*)ptr)->num_inode_blocks; i++) {
               for (int j = 0; j < INODES_PER_BLOCK; j++) {
                     inode_ptr->valid = (uint32_t) 0; // none of the inodes are valid at init
-                    inode_ptr->pointer_block = sizeof(omega_super_t) + (i*BLOCK_SIZE) + (j*sizeof(omega_inode_t)); // assign a pointer block for each inode
+                    inode_ptr->pointer_block = sizeof(omega_super_t) + (((omega_super_t*)ptr)->num_inode_blocks * BLOCK_SIZE) 
+                                                + (((i*INODES_PER_BLOCK) + j) * BLOCK_SIZE); // assign a pointer block for each inode
                     inode_ptr++;
               }
         }
@@ -290,7 +291,22 @@ void init(void* ptr, size_t size) {
         inode_ptr->mtime = time(NULL);
         inode_ptr->valid = 1; // valid
         inode_ptr->mode = S_IFDIR | 0755; // directory with correct permissions
-        inode_ptr->name = "/\0";
+        inode_ptr->name = "/";
+    }
+}
+
+omega_inode_t* navigate_path(void* ptr, const char* path) {
+    omega_inode_t* inode_ptr = (omega_inode_t*) (path + sizeof(omega_super_t));
+    // root 
+    if (strcmp(path, "/") == 0) {
+        return inode_ptr;
+    }
+    if (path[0] == "/") path++;
+    while (path) {
+        char* buffer = malloc(256); //
+        while (*path != "/") *buffer++ = *path;
+        
+        path++; // skip the "/"
     }
 }
 
@@ -325,10 +341,11 @@ void init(void* ptr, size_t size) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
+    printf("Magic number: %d", ((omega_super_t*)fsptr)->omega_magic_num);
     if (((omega_super_t*)fsptr)->omega_magic_num != MAGIC_NUMBER){
           init(fsptr, fssize);
     }
-    
+
     if (strcmp(path, "/") == 0) {
         stbuf->st_uid = uid;
         stbuf->st_gid = gid;
