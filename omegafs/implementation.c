@@ -233,16 +233,23 @@ gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
 
 /* Helper types and functions */
 #define MAGIC_NUMBER (uint32_t)4242424242
-#define POINTERS_PER_INODE 5
 #define BLOCK_SIZE (size_t)4096
+#define POINTERS_PER_BLOCK (uint32_t)1024
+#define INODES_PER_BLOCK (uint32_t)1024
 
+typedef struct {
+    uint32_t valid;
+    uint32_t mode;
+    uint32_t size;
+    uint32_t pointer_block;
+} omega_inode_t;
 
 typedef struct {
     uint32_t omega_magic_num;
     uint32_t num_blocks;
     uint32_t num_inode_blocks;
     uint32_t num_inodes;
-} omega_super_t;
+} omega_fs_t;
 
 typedef struct {
     char directoryname[32];
@@ -256,19 +263,17 @@ typedef struct {
     void* data;
 } omega_file_t;
 
-typedef struct {
-    uint32_t initialized;
-    uint32_t size;
-    uint32_t link_offsets[POINTERS_PER_INODE];
-} omega_inode_t;
 
 /* YOUR HELPER FUNCTIONS GO HERE */
 
 void init(void* ptr, size_t size) {
-    if (((omega_super_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
+    if (((omega_fs_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
         memset(ptr, 0, size); // blank everything out
-        ((omega_super_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
-        ((omega_super_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
+        ((omega_fs_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
+        ((omega_fs_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
+        ((omega_fs_t*)ptr)->num_inode_blocks = (uint32_t)(size / 10);
+        ((omega_fs_t*)ptr)->num_inodes = (uint32_t)0;
+
     }
 }
 
@@ -303,7 +308,7 @@ void init(void* ptr, size_t size) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
-    char* path_copy;
+    char* path_copy = NULL;
     strcpy(path_copy, path);
     if (strcmp(path, "/") == 0) {
         stbuf->st_uid = uid;
@@ -360,7 +365,9 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
 */
 int __myfs_readdir_implem(void *fsptr, size_t fssize, int *errnoptr,
                           const char *path, char ***namesptr) {
-  /* STUB */
+  if (strcmp(path, "/") == 0) {
+        return 0;
+  }
   return -1;
 }
 
