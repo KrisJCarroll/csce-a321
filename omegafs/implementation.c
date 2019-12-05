@@ -302,7 +302,7 @@ void init(void* ptr, size_t size) {
 }
 
 omega_inode_t* navigate_path(void* ptr, const char* path) {
-    omega_inode_t* inode_ptr = (omega_inode_t*) (path + sizeof(omega_super_t));
+    omega_inode_t* inode_ptr = (omega_inode_t*) (ptr + sizeof(omega_super_t));
     // root 
     if (strcmp(path, "/") == 0) {
         return inode_ptr;
