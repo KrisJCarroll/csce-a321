@@ -370,7 +370,7 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
     }
 
     if (strcmp(path, "/") == 0) {
-        omega_inode_t* inode = fsptr + sizeof(omega_super_t);
+        omega_inode_t* inode = fsptr + BLOCK_SIZE;
         stbuf->st_uid = uid;
         stbuf->st_gid = gid;
         stbuf->st_mode = inode->mode;
