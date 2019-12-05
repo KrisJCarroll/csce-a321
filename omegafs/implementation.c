@@ -292,7 +292,7 @@ void init(void* ptr, size_t size) {
                     inode_ptr++;
               }
         }
-        inode_ptr = (omega_inode_t*)(ptr + BLOCK_SIZE); // go back to beginning of inodes for root
+        inode_ptr = ptr + BLOCK_SIZE; // go back to beginning of inodes for root
         inode_ptr->atime = time(NULL);
         inode_ptr->mtime = time(NULL);
         inode_ptr->valid = 1; // valid
@@ -302,7 +302,7 @@ void init(void* ptr, size_t size) {
 }
 
 omega_inode_t* navigate_path(void* ptr, const char* path) {
-    omega_inode_t* inode_ptr = ptr + sizeof(omega_super_t);
+    omega_inode_t* inode_ptr = ptr + BLOCK_SIZE;
     // root 
     if (strcmp(path, "/") == 0) {
         return inode_ptr;
