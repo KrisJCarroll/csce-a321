@@ -242,7 +242,7 @@ typedef struct {
       uint32_t num_blocks;
       uint32_t num_inode_blocks;
       uint32_t num_inodes;
-} omega_fs_t;
+} omega_super_t;
 
 typedef struct {
       char directoryname[32];
@@ -265,11 +265,10 @@ typedef struct {
 /* YOUR HELPER FUNCTIONS GO HERE */
 
 void init(void* ptr, size_t size) {
-      omega_fs_t* fs = (omega_fs_t*) ptr;
-      if (fs->omega_magic_num != MAGIC_NUMBER) {
-            memset(fs, 0, size); // blank everything out
-            fs->omega_magic_num = MAGIC_NUMBER; // set the magic number
-            fs->num_blocks = (uint32_t)(size / BLOCK_SIZE);
+      if (((omega_super_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
+            memset(ptr, 0, size); // blank everything out
+            ((omega_super_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
+            ((omega_super_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
       }
 }
 
