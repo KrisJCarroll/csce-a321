@@ -302,7 +302,7 @@ void init(void* ptr, size_t size) {
 }
 
 omega_inode_t* navigate_path(void* ptr, const char* path) {
-    omega_inode_t* inode_ptr = (omega_inode_t*) (ptr + sizeof(omega_super_t));
+    omega_inode_t* inode_ptr = ptr + sizeof(omega_super_t);
     // root 
     if (strcmp(path, "/") == 0) {
         return inode_ptr;
@@ -365,13 +365,17 @@ omega_inode_t* navigate_path(void* ptr, const char* path) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
-    printf("Magic number: %d", ((omega_super_t*)fsptr)->omega_magic_num);
     if (((omega_super_t*)fsptr)->omega_magic_num != MAGIC_NUMBER){
           init(fsptr, fssize);
     }
 
+    if (strcmp(path, "/") == 0) {
+
+    }
+
     omega_inode_t* inode = navigate_path(fsptr, path);
     if (inode) {
+          printf("Found inode!");
           stbuf->st_uid = uid;
           stbuf->st_gid = gid;
           stbuf->st_mode = inode->mode;
