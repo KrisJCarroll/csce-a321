@@ -305,7 +305,12 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           const char *path, struct stat *stbuf) {
       char* path_copy;
       strcpy(path_copy, path);
-      while(1)
+      if (strcmp(path, "/") == 0) {
+            stbuf->st_uid = uid;
+            stbuf->st_gid = gid;
+            stbuf->st_mode = S_IFDIR | 0755;
+            return 0;
+      }
   
   
 
