@@ -1,27 +1,27 @@
 /*
 
-  MyFS: a tiny file-system written for educational purposes
+MyFS: a tiny file-system written for educational purposes
 
-  MyFS is 
+MyFS is 
 
-  Copyright 2018-19 by
+Copyright 2018-19 by
 
-  University of Alaska Anchorage, College of Engineering.
+University of Alaska Anchorage, College of Engineering.
 
-  Contributors: Christoph Lauter
-                ... and
-                Kristopher Carroll
-                ...
+Contributors: Christoph Lauter
+            ... and
+            Kristopher Carroll
+            ...
 
-  and based on 
+and based on 
 
-  FUSE: Filesystem in Userspace
-  Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
+FUSE: Filesystem in Userspace
+Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
 
-  This program can be distributed under the terms of the GNU GPL.
-  See the file COPYING.
+This program can be distributed under the terms of the GNU GPL.
+See the file COPYING.
 
-  gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
+gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
 
 */
 
@@ -238,38 +238,38 @@
 
 
 typedef struct {
-      uint32_t omega_magic_num;
-      uint32_t num_blocks;
-      uint32_t num_inode_blocks;
-      uint32_t num_inodes;
+    uint32_t omega_magic_num;
+    uint32_t num_blocks;
+    uint32_t num_inode_blocks;
+    uint32_t num_inodes;
 } omega_super_t;
 
 typedef struct {
-      char directoryname[32];
-      size_t num_links;
-      uint32_t* links;
+    char directoryname[32];
+    size_t num_links;
+    uint32_t* links;
 } omega_dir_t;
 
 typedef struct {
-      char filename[32];
-      size_t size; 
-      void* data;
+    char filename[32];
+    size_t size; 
+    void* data;
 } omega_file_t;
 
 typedef struct {
-      uint32_t initialized;
-      uint32_t size;
-      uint32_t link_offsets[POINTERS_PER_INODE];
+    uint32_t initialized;
+    uint32_t size;
+    uint32_t link_offsets[POINTERS_PER_INODE];
 } omega_inode_t;
 
 /* YOUR HELPER FUNCTIONS GO HERE */
 
 void init(void* ptr, size_t size) {
-      if (((omega_super_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
-            memset(ptr, 0, size); // blank everything out
-            ((omega_super_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
-            ((omega_super_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
-      }
+    if (((omega_super_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
+        memset(ptr, 0, size); // blank everything out
+        ((omega_super_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
+        ((omega_super_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
+    }
 }
 
 /* End of helper functions */
@@ -303,23 +303,23 @@ void init(void* ptr, size_t size) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
-      char* path_copy;
-      strcpy(path_copy, path);
-      if (strcmp(path, "/") == 0) {
-            stbuf->st_uid = uid;
-            stbuf->st_gid = gid;
-            stbuf->st_mode = S_IFDIR | 0755;
-            stbuf->st_nlink = 2; // 2 for . and ..
-            stbuf->st_size = 4096;
-            stbuf->st_atime = time(NULL);
-            stbuf->st_mtime = time(NULL);
-            return 0;
-      }
+    char* path_copy;
+    strcpy(path_copy, path);
+    if (strcmp(path, "/") == 0) {
+        stbuf->st_uid = uid;
+        stbuf->st_gid = gid;
+        stbuf->st_mode = S_IFDIR | 0755;
+        stbuf->st_nlink = 2; // 2 for . and ..
+        stbuf->st_size = 4096;
+        stbuf->st_atime = time(NULL);
+        stbuf->st_mtime = time(NULL);
+        return 0;
+    }
   
   
 
-  *errnoptr = ENOENT;
-  return -1;
+    *errnoptr = ENOENT;
+    return -1;
 }
 
 /* Implements an emulation of the readdir system call on the filesystem 
