@@ -373,7 +373,7 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
         omega_inode_t* inode = fsptr + BLOCK_SIZE;
         stbuf->st_uid = uid;
         stbuf->st_gid = gid;
-        stbuf->st_mode = inode->mode;
+        stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = inode->num_links;
         stbuf->st_size = inode->size;
         stbuf->st_atime = inode->atime;
