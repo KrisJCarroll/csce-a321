@@ -304,7 +304,7 @@ omega_inode_t* navigate_path(void* ptr, const char* path) {
     if (path[0] == "/") path++;
     while (path) {
         char* buffer = malloc(256); //
-        while (*path != "/") *buffer++ = *path;
+        while (strcmp(*path,"/") != 0) *buffer++ = *path;
         
         path++; // skip the "/"
     }
