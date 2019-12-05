@@ -448,7 +448,7 @@ int __myfs_readdir_implem(void *fsptr, size_t fssize, int *errnoptr,
     if (strcmp(path, "/") == 0) {
         ***namesptr = malloc(sizeof(char) * 5);
         ***namesptr = "Hello";
-        return 0;
+        return 1;
   }
   return -1;
 }
