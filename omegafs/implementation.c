@@ -370,7 +370,7 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
     }
 
     if (strcmp(path, "/") == 0) {
-
+        printf("Root accessed\n");
     }
 
     omega_inode_t* inode = navigate_path(fsptr, path);
