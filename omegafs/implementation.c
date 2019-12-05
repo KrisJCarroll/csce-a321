@@ -368,7 +368,7 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
     if (((omega_super_t*)fsptr)->omega_magic_num != MAGIC_NUMBER){
           init(fsptr, fssize);
     }
-/*
+
     if (strcmp(path, "/") == 0) {
         omega_inode_t* inode = fsptr + sizeof(omega_super_t);
         stbuf->st_uid = uid;
@@ -379,7 +379,7 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
         stbuf->st_atime = inode->atime;
         stbuf->st_ctime = inode->mtime;
     }
-*/
+
 
     omega_inode_t* inode = navigate_path(fsptr, path);
     if (inode) {
