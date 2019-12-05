@@ -282,7 +282,7 @@ void init(void* ptr, size_t size) {
         omega_super_t* fsptr = ptr;
         fsptr->omega_magic_num = MAGIC_NUMBER; // set the magic number
         fsptr->num_blocks = (uint32_t)(size / BLOCK_SIZE);
-        fsptr->num_inode_blocks = (uint32_t)(size / 20); // 5% of size set aside for inodes
+        fsptr->num_inode_blocks = (uint32_t)((size / BLOCK_SIZE) / 20); // 5% of size set aside for inodes
         fsptr->num_inodes = (uint32_t)1; // just an inode for the root
         fsptr->first_inode = (uint32_t)20;
         omega_inode_t* inode_ptr = ptr + fsptr->first_inode; // move pointer to after super block
