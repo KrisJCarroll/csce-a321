@@ -260,6 +260,7 @@ typedef struct {
     uint32_t num_blocks;
     uint32_t num_inode_blocks;
     uint32_t num_inodes;
+    uint32_t first_inode;
 } omega_super_t;
 
 typedef struct {
@@ -279,11 +280,13 @@ union omega_block {
 void init(void* ptr, size_t size) {
     if (((omega_super_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
         memset(ptr, 0, size); // blank everything out
-        ((omega_super_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
-        ((omega_super_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
-        ((omega_super_t*)ptr)->num_inode_blocks = (uint32_t)(size / 20); // 5% of size set aside for inodes
-        ((omega_super_t*)ptr)->num_inodes = (uint32_t)1; // just an inode for the root
-        omega_inode_t* inode_ptr = (omega_inode_t*)(ptr + BLOCK_SIZE); // move pointer to after super block
+        omega_super_t* fsptr = ptr;
+        fsptr->omega_magic_num = MAGIC_NUMBER; // set the magic number
+        fsptr->num_blocks = (uint32_t)(size / BLOCK_SIZE);
+        fsptr->num_inode_blocks = (uint32_t)(size / 20); // 5% of size set aside for inodes
+        fsptr->num_inodes = (uint32_t)1; // just an inode for the root
+        fsptr->first_inode = (uint32_t)20;
+        omega_inode_t* inode_ptr = ptr + fsptr->first_inode; // move pointer to after super block
         for (int i = 0; i < ((omega_super_t*)ptr)->num_inode_blocks; i++) {
               for (int j = 0; j < INODES_PER_BLOCK; j++) {
                     inode_ptr->valid = (uint32_t) 0; // none of the inodes are valid at init
@@ -292,7 +295,7 @@ void init(void* ptr, size_t size) {
                     inode_ptr++;
               }
         }
-        inode_ptr = ptr + BLOCK_SIZE; // go back to beginning of inodes for root
+        inode_ptr = ptr + fsptr->first_inode; // go back to beginning of inodes for root
         inode_ptr->atime = time(NULL);
         inode_ptr->mtime = time(NULL);
         inode_ptr->valid = 1; // valid
@@ -365,40 +368,38 @@ omega_inode_t* navigate_path(void* ptr, const char* path) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
-
+    
+    // not initialized, let's initialize it
     if (((omega_super_t*)fsptr)->omega_magic_num != MAGIC_NUMBER){
           init(fsptr, fssize);
     }
-
+    
+    // these will always be the same
     stbuf->st_uid = uid;
     stbuf->st_gid = gid;
     stbuf->st_atime = time(NULL);
     stbuf->st_mtime = time(NULL);
 
+    // root directory
     if (strcmp(path, "/") == 0) {
         stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = 2;
         stbuf->st_size = 4096;
         return 0;
     }
-    
-    else{
-        stbuf->st_mode = S_IFREG | 0755;
-        stbuf->st_nlink = 1;
-        return 0;
-    }
-
-
-    omega_inode_t* inode = navigate_path(fsptr, path);
-    if (inode) {
-          stbuf->st_uid = uid;
-          stbuf->st_gid = gid;
-          stbuf->st_mode = inode->mode;
-          stbuf->st_nlink = inode->num_links;
-          stbuf->st_size = inode->size;
-          stbuf->st_atime = inode->atime;
-          stbuf->st_mtime = inode->mtime;
-          return 0;
+    // we need to travel, grab the correct inode and use that for information
+    else {
+      omega_inode_t* inode = navigate_path(fsptr, path);
+      if (inode) {
+            stbuf->st_uid = uid;
+            stbuf->st_gid = gid;
+            stbuf->st_mode = inode->mode;
+            stbuf->st_nlink = inode->num_links;
+            stbuf->st_size = inode->size;
+            stbuf->st_atime = inode->atime;
+            stbuf->st_mtime = inode->mtime;
+            return 0;
+      }
     }
 
     *errnoptr = ENOENT;
@@ -443,7 +444,10 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
 */
 int __myfs_readdir_implem(void *fsptr, size_t fssize, int *errnoptr,
                           const char *path, char ***namesptr) {
-  if (strcmp(path, "/") == 0) {
+
+    if (strcmp(path, "/") == 0) {
+        ***namesptr = malloc(sizeof(char) * 5);
+        ***namesptr = "Hello";
         return 0;
   }
   return -1;
