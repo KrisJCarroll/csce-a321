@@ -37,6 +37,7 @@ gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 
 /* The filesystem you implement must support all the 13 operations
@@ -242,6 +243,7 @@ typedef struct {
     uint32_t mode;
     uint32_t atime;
     uint32_t mtime;
+    uint32_t num_links;
     uint32_t size;
     uint32_t num_blocks; // how many pointers are in the pointer block
     uint32_t pointer_block;
@@ -312,9 +314,24 @@ omega_inode_t* navigate_path(void* ptr, const char* path) {
             *buffer = *path;
             buffer++;
         }
-        omega_directory_t* directory = (omega_directory_t*) (ptr + inode_ptr->pointer_block->pointers[0]);
+        omega_pointer_t* pointer_block = ptr + inode_ptr->pointer_block;
+        omega_directory_t* directory = ptr + pointer_block->pointers[0];
+        uint32_t* dir_cont = directory->contents;
+        bool found = false;
+
+        while (dir_cont) {
+            omega_inode_t* temp_inode = ptr + *dir_cont;
+            if (strcmp(temp_inode->name, buffer) == 0) {
+                inode_ptr = ptr + *dir_cont;
+                found = true;
+                break;
+            }
+            dir_cont++;
+        }
+        if (!found) return NULL;
         path++; // skip the "/"
     }
+    return inode_ptr;
 }
 
 /* End of helper functions */
@@ -353,18 +370,16 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
           init(fsptr, fssize);
     }
 
-    if (strcmp(path, "/") == 0) {
-        stbuf->st_uid = uid;
-        stbuf->st_gid = gid;
-        stbuf->st_mode = S_IFDIR | 0755;
-        stbuf->st_nlink = 2; // 2 for . and ..
-        stbuf->st_size = 4096;
-        stbuf->st_atime = time(NULL);
-        stbuf->st_mtime = time(NULL);
-        return 0;
+    omega_inode_t* inode = navigate_path(fsptr, path);
+    if (inode) {
+          stbuf->st_uid = uid;
+          stbuf->st_gid = gid;
+          stbuf->st_mode = inode->mode;
+          stbuf->st_nlink = inode->num_links;
+          stbuf->st_size = inode->size;
+          stbuf->st_atime = inode->atime;
+          stbuf->st_mtime = inode->mtime;
     }
-  
-  
 
     *errnoptr = ENOENT;
     return -1;
