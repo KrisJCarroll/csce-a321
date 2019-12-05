@@ -235,7 +235,9 @@
 
 typedef struct {
       uint32_t omega_magic_num;
-
+      uint32_t num_blocks;
+      uint32_t num_inode_blocks;
+      uint32_t num_inodes;
 } omega_fs_t;
 
 typedef struct {
@@ -248,6 +250,15 @@ typedef struct {
       struct timespec st_mtimspec;
       void* file_mem;
 } omega_file_t;
+
+typedef struct {
+      uint32_t initialized;
+      uint32_t size;
+      uint32_t link1_block;
+      uint32_t link2_block;
+      uint32_t link3_block;
+      uint32_t link4_block;
+} omega_inode_t;
 
 /* YOUR HELPER FUNCTIONS GO HERE */
 
@@ -288,6 +299,8 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           const char *path, struct stat *stbuf) {
   stbuf->st_uid = getuid();
   stbuf->st_gid = getgid();
+
+  *errnoptr = ENOENT;
   return -1;
 }
 
