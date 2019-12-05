@@ -240,12 +240,13 @@ gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
 typedef struct {
     uint32_t valid;
     uint32_t mode;
-    char name[32]; // 32 character name to match uint32_t sizes for everything else
     uint32_t atime;
     uint32_t mtime;
     uint32_t size;
     uint32_t num_links; // how many pointers are in the pointer block
     uint32_t pointer_block;
+    uint32_t name_length;
+    char* name; 
 } omega_inode_t;
 
 typedef struct {
@@ -260,8 +261,11 @@ typedef struct {
 } omega_super_t;
 
 union omega_block {
-
-}
+    omega_super_t super;
+    omega_inode_t inodes[INODES_PER_BLOCK];
+    omega_pointer_t pointers;
+    char data[BLOCK_SIZE];
+};
 
 
 /* YOUR HELPER FUNCTIONS GO HERE */
@@ -277,11 +281,16 @@ void init(void* ptr, size_t size) {
         for (int i = 0; i < ((omega_super_t*)ptr)->num_inode_blocks; i++) {
               for (int j = 0; j < INODES_PER_BLOCK; j++) {
                     inode_ptr->valid = (uint32_t) 0; // none of the inodes are valid at init
-                    inode_ptr->pointer_block = i*j; // assign a pointer block for each inode
+                    inode_ptr->pointer_block = sizeof(omega_super_t) + (i*BLOCK_SIZE) + (j*sizeof(omega_inode_t)); // assign a pointer block for each inode
+                    inode_ptr++;
               }
         }
-
-
+        inode_ptr = (omega_inode_t*)(ptr + BLOCK_SIZE); // go back to beginning of inodes for root
+        inode_ptr->atime = time(NULL);
+        inode_ptr->mtime = time(NULL);
+        inode_ptr->valid = 1; // valid
+        inode_ptr->mode = S_IFDIR | 0755; // directory with correct permissions
+        inode_ptr->name = "/\0";
     }
 }
 
@@ -316,8 +325,10 @@ void init(void* ptr, size_t size) {
 int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
                           uid_t uid, gid_t gid,
                           const char *path, struct stat *stbuf) {
-    char* path_copy = NULL;
-    strcpy(path_copy, path);
+    if (((omega_super_t*)fsptr)->omega_magic_num != MAGIC_NUMBER){
+          init(fsptr, fssize);
+    }
+    
     if (strcmp(path, "/") == 0) {
         stbuf->st_uid = uid;
         stbuf->st_gid = gid;
