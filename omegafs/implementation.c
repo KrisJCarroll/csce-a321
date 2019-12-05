@@ -243,7 +243,7 @@ typedef struct {
     uint32_t atime;
     uint32_t mtime;
     uint32_t size;
-    uint32_t num_links; // how many pointers are in the pointer block
+    uint32_t num_blocks; // how many pointers are in the pointer block
     uint32_t pointer_block;
     uint32_t name_length;
     char* name; 
@@ -259,6 +259,10 @@ typedef struct {
     uint32_t num_inode_blocks;
     uint32_t num_inodes;
 } omega_super_t;
+
+typedef struct {
+    uint32_t* contents;
+} omega_directory_t;
 
 union omega_block {
     omega_super_t super;
@@ -303,9 +307,12 @@ omega_inode_t* navigate_path(void* ptr, const char* path) {
     }
     if (path[0] == "/") path++;
     while (path) {
-        char* buffer = malloc(256); //
-        while (strcmp(*path,"/") != 0) *buffer++ = *path;
-        
+        char* buffer = malloc(256); // storing path chunk name
+        while (strcmp(*path,"/") != 0) {
+            *buffer = *path;
+            buffer++;
+        }
+        omega_directory_t* directory = (omega_directory_t*) (ptr + inode_ptr->pointer_block->pointers[0]);
         path++; // skip the "/"
     }
 }
