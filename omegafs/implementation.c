@@ -368,14 +368,21 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
     if (((omega_super_t*)fsptr)->omega_magic_num != MAGIC_NUMBER){
           init(fsptr, fssize);
     }
-
+/*
     if (strcmp(path, "/") == 0) {
-        printf("Root accessed\n");
+        omega_inode_t* inode = fsptr + sizeof(omega_super_t);
+        stbuf->st_uid = uid;
+        stbuf->st_gid = gid;
+        stbuf->st_mode = inode->mode;
+        stbuf->st_nlink = inode->num_links;
+        stbuf->st_size = inode->size;
+        stbuf->st_atime = inode->atime;
+        stbuf->st_ctime = inode->mtime;
     }
+*/
 
     omega_inode_t* inode = navigate_path(fsptr, path);
     if (inode) {
-          printf("Found inode!");
           stbuf->st_uid = uid;
           stbuf->st_gid = gid;
           stbuf->st_mode = inode->mode;
@@ -383,6 +390,7 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
           stbuf->st_size = inode->size;
           stbuf->st_atime = inode->atime;
           stbuf->st_mtime = inode->mtime;
+          return 0;
     }
 
     *errnoptr = ENOENT;
