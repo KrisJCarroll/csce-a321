@@ -235,7 +235,7 @@ gcc -Wall myfs.c implementation.c `pkg-config fuse --cflags --libs` -o myfs
 #define MAGIC_NUMBER (uint32_t)4242424242
 #define BLOCK_SIZE (size_t)4096
 #define POINTERS_PER_BLOCK (uint32_t)1024
-#define INODES_PER_BLOCK (uint32_t)1024
+#define INODES_PER_BLOCK (uint32_t)64
 
 typedef struct {
     uint32_t valid;
@@ -257,30 +257,30 @@ typedef struct {
     uint32_t num_blocks;
     uint32_t num_inode_blocks;
     uint32_t num_inodes;
-} omega_fs_t;
+} omega_super_t;
 
-typedef struct {
-    char directoryname[32];
-    size_t num_links;
-    uint32_t* links;
-} omega_dir_t;
+union omega_block {
 
-typedef struct {
-    char filename[32];
-    size_t size; 
-    void* data;
-} omega_file_t;
+}
 
 
 /* YOUR HELPER FUNCTIONS GO HERE */
 
 void init(void* ptr, size_t size) {
-    if (((omega_fs_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
+    if (((omega_super_t*)ptr)->omega_magic_num != MAGIC_NUMBER) {
         memset(ptr, 0, size); // blank everything out
-        ((omega_fs_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
-        ((omega_fs_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
-        ((omega_fs_t*)ptr)->num_inode_blocks = (uint32_t)(size / 10);
-        ((omega_fs_t*)ptr)->num_inodes = (uint32_t)0;
+        ((omega_super_t*)ptr)->omega_magic_num = MAGIC_NUMBER; // set the magic number
+        ((omega_super_t*)ptr)->num_blocks = (uint32_t)(size / BLOCK_SIZE);
+        ((omega_super_t*)ptr)->num_inode_blocks = (uint32_t)(size / 20); // 5% of size set aside for inodes
+        ((omega_super_t*)ptr)->num_inodes = (uint32_t)0; // no inodes initially
+        omega_inode_t* inode_ptr = (omega_inode_t*)(ptr + BLOCK_SIZE); // move pointer to after super block
+        for (int i = 0; i < ((omega_super_t*)ptr)->num_inode_blocks; i++) {
+              for (int j = 0; j < INODES_PER_BLOCK; j++) {
+                    inode_ptr->valid = (uint32_t) 0; // none of the inodes are valid at init
+                    inode_ptr->pointer_block = i*j; // assign a pointer block for each inode
+              }
+        }
+
 
     }
 }
