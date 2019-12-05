@@ -378,6 +378,7 @@ int __myfs_getattr_implem(void *fsptr, size_t fssize, int *errnoptr,
         stbuf->st_size = 4096;
         stbuf->st_atime = time(NULL);
         stbuf->st_ctime = time(NULL);
+        return 0;
     }
 
 
